@@ -1,0 +1,1401 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>FitPlan — Plan de Entrenamiento</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-date-fns/3.0.0/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@300;400;500;700&display=swap');
+:root{
+  --dark:#0A0E1A;--mid:#141929;--card:#1A2035;--accent:#00D4AA;
+  --accent2:#FF6B35;--accent3:#7C5CFC;--text:#E8EDF5;--muted:#8892A4;
+  --border:#252D45;--success:#22C55E;--warn:#F59E0B;--danger:#EF4444;
+}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--text);min-height:100vh;}
+nav{background:var(--mid);border-bottom:1px solid var(--border);padding:0 16px;display:flex;align-items:center;position:sticky;top:0;z-index:100;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.nav-logo{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--accent);letter-spacing:2px;padding:13px 16px 13px 0;border-right:1px solid var(--border);margin-right:4px;white-space:nowrap;}
+.nav-tab{padding:14px 11px;cursor:pointer;color:var(--muted);font-size:12px;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;}
+.nav-tab.active{color:var(--accent);border-bottom-color:var(--accent);}
+.section{display:none;padding:18px 16px;max-width:1100px;margin:0 auto;}
+.section.active{display:block;}
+.section-title{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:2px;color:var(--text);margin-bottom:14px;display:flex;align-items:center;gap:10px;}
+.section-title::after{content:'';flex:1;height:1px;background:var(--border);}
+.hero{background:linear-gradient(135deg,var(--card),#0F1628);border:1px solid var(--border);border-radius:16px;padding:20px;margin-bottom:14px;}
+.hero-title{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--accent);letter-spacing:3px;line-height:1;}
+.hero-sub{font-size:12px;color:var(--muted);margin-top:3px;}
+.stats-row{display:flex;gap:7px;margin-top:14px;flex-wrap:wrap;}
+.stat-pill{background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:10px;padding:5px 11px;font-size:11px;}
+.stat-pill span{color:var(--accent);font-weight:700;}
+.grid-2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;}
+.grid-3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:11px;}
+@media(max-width:660px){.grid-2,.grid-3,.days-grid{grid-template-columns:1fr!important;}}
+.card{background:var(--card);border:1px solid var(--border);border-radius:14px;padding:15px;}
+.card-title{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1.5px;color:var(--accent);margin-bottom:9px;}
+.days-grid{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:14px;}
+.day-card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;cursor:pointer;}
+.day-header{padding:12px 15px;display:flex;justify-content:space-between;align-items:center;}
+.day-name{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:2px;}
+.day-type{font-size:10px;color:rgba(255,255,255,.7);font-weight:500;margin-top:1px;}
+.day-badge{background:rgba(0,0,0,.25);border-radius:20px;padding:3px 9px;font-size:10px;font-weight:600;}
+.day-preview{padding:8px 15px 12px;font-size:11px;color:var(--muted);}
+.modal-overlay{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:200;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:10px;}
+.modal-overlay.open{display:block;}
+.modal{background:var(--mid);border:1px solid var(--border);border-radius:20px;width:100%;max-width:880px;margin:0 auto;}
+.modal-header{padding:16px 18px 11px;border-bottom:1px solid var(--border);display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.modal-close{width:32px;height:32px;min-width:32px;background:var(--border);border:none;border-radius:50%;color:var(--muted);font-size:15px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.modal-body{padding:14px 18px;}
+.ex-card{display:grid;grid-template-columns:170px 1fr;gap:14px;padding:13px 0;border-bottom:1px solid var(--border);align-items:center;}
+.ex-card:last-child{border-bottom:none;}
+@media(max-width:520px){.ex-card{grid-template-columns:130px 1fr;gap:10px;}}
+.anim-box{width:170px;height:150px;background:#0d1420;border-radius:12px;border:1px solid var(--border);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.anim-box svg{width:100%;height:100%;}
+@media(max-width:520px){.anim-box{width:130px;height:115px;}}
+.ex-num{font-family:'Bebas Neue',sans-serif;font-size:24px;line-height:1;}
+.ex-name{font-weight:700;font-size:13px;color:var(--text);line-height:1.3;}
+.badge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:600;}
+.badge-compound{background:rgba(0,212,170,.15);color:var(--accent);}
+.badge-isolation{background:rgba(124,92,252,.15);color:var(--accent3);}
+.badge-core{background:rgba(255,107,53,.15);color:var(--accent2);}
+.badge-warm{background:rgba(245,158,11,.15);color:var(--warn);}
+.ex-chips{display:flex;gap:6px;flex-wrap:wrap;margin:5px 0;}
+.chip{background:var(--dark);border-radius:7px;padding:3px 10px;font-size:11px;font-weight:600;}
+.chip-s{color:var(--accent);}.chip-r{color:var(--accent3);}.chip-rest{color:var(--muted);}
+.ex-note{font-size:11px;color:var(--muted);line-height:1.55;}
+.muscle-label{font-size:9px;fill:#FF6B35;font-family:'DM Sans',sans-serif;font-weight:700;}
+.tracker-controls{display:flex;gap:8px;margin-bottom:14px;flex-wrap:wrap;align-items:flex-end;}
+.input-group{display:flex;flex-direction:column;gap:3px;}
+.input-label{font-size:11px;color:var(--muted);font-weight:500;}
+.inp{background:var(--dark);border:1px solid var(--border);border-radius:10px;color:var(--text);font-family:'DM Sans',sans-serif;font-size:14px;padding:9px 12px;width:128px;outline:none;-webkit-appearance:none;}
+.inp:focus{border-color:var(--accent);}
+.btn{padding:9px 15px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.btn-accent{background:var(--accent);color:var(--dark);}
+.btn-danger{background:rgba(239,68,68,.2);color:var(--danger);border:1px solid rgba(239,68,68,.3);}
+.status-banner{border-radius:12px;padding:11px 15px;margin-bottom:13px;font-weight:500;font-size:12px;display:flex;align-items:center;gap:10px;}
+.status-ok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--success);}
+.status-warn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--warn);}
+.status-danger{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--danger);}
+.status-neutral{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);}
+.weight-history{width:100%;border-collapse:collapse;font-size:12px;}
+.weight-history th{background:var(--dark);padding:7px 10px;text-align:left;color:var(--muted);font-size:10px;text-transform:uppercase;letter-spacing:1px;}
+.weight-history td{padding:8px 10px;border-bottom:1px solid var(--border);}
+.chart-container{position:relative;height:220px;margin-bottom:6px;}
+.macro-bar-wrap{margin:4px 0;}
+.macro-label{display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px;}
+.macro-bar{height:7px;border-radius:4px;background:var(--dark);overflow:hidden;}
+.macro-fill{height:100%;border-radius:4px;}
+.phase-toggle{display:flex;gap:7px;margin-bottom:11px;}
+.phase-btn{padding:7px 15px;border-radius:8px;border:1px solid var(--border);background:transparent;color:var(--muted);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;}
+.phase-btn.active{background:var(--accent2);border-color:var(--accent2);color:white;}
+.phase-ex{display:flex;gap:11px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--border);}
+.phase-ex:last-child{border-bottom:none;}
+.phase-anim{width:100px;height:88px;background:#0d1420;border-radius:9px;border:1px solid var(--border);overflow:hidden;flex-shrink:0;display:flex;align-items:center;justify-content:center;}
+.phase-anim svg{width:100%;height:100%;}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="nav-logo">FITPLAN</div>
+  <div class="nav-tab active" onclick="showTab('dashboard',this)">🏠 Inicio</div>
+  <div class="nav-tab" onclick="showTab('plan',this)">💪 Plan</div>
+  <div class="nav-tab" onclick="showTab('tracker',this)">⚖️ Peso</div>
+  <div class="nav-tab" onclick="showTab('nutricion',this)">🥗 Nutrición</div>
+  <div class="nav-tab" onclick="showTab('lumbar',this)">🦴 Lumbar</div>
+</nav>
+
+<!-- DASHBOARD -->
+<div class="section active" id="tab-dashboard">
+  <div class="hero">
+    <div class="hero-title">TU PLAN 2026</div>
+    <div class="hero-sub">Recomposición corporal · Hombros &amp; Tríceps · Protección lumbar</div>
+    <div class="stats-row">
+      <div class="stat-pill">Peso <span>83 kg</span></div>
+      <div class="stat-pill">Objetivo <span>76 kg</span></div>
+      <div class="stat-pill">Grasa <span>18.5%</span></div>
+      <div class="stat-pill">Masa magra <span>~67.7 kg</span></div>
+      <div class="stat-pill">Calorías <span>~2.295 kcal</span></div>
+      <div class="stat-pill">Proteína <span>200g/día</span></div>
+    </div>
+  </div>
+  <div class="grid-3">
+    <div class="card">
+      <div class="card-title">📅 Semana</div>
+      <div style="font-size:12px;line-height:2.1;">
+        <div><span style="color:var(--accent2);font-weight:700;">LUN</span> — Push A · Hombros + Pecho</div>
+        <div><span style="color:var(--accent);font-weight:700;">MAR</span> — Pull A · Espalda + Bíceps</div>
+        <div><span style="color:var(--accent2);font-weight:700;">MIÉ</span> — Push B · Hombros + Tríceps</div>
+        <div><span style="color:var(--accent);font-weight:700;">JUE</span> — Pull B · Espalda + Core</div>
+        <div><span style="color:var(--accent3);font-weight:700;">VIE</span> — Full Upper (opcional)</div>
+        <div><span style="color:var(--muted);font-weight:700;">SAB/DOM</span> — Descanso 🛌</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⚡ Frecuencia muscular</div>
+      <div>
+        <div class="macro-bar-wrap"><div class="macro-label"><span>Hombros ★</span><span style="color:var(--accent)">2×/sem</span></div><div class="macro-bar"><div class="macro-fill" style="width:100%;background:var(--accent)"></div></div></div>
+        <div class="macro-bar-wrap"><div class="macro-label"><span>Tríceps ★</span><span style="color:var(--accent)">2×/sem</span></div><div class="macro-bar"><div class="macro-fill" style="width:100%;background:var(--accent)"></div></div></div>
+        <div class="macro-bar-wrap"><div class="macro-label"><span>Espalda</span><span style="color:var(--accent3)">2×/sem</span></div><div class="macro-bar"><div class="macro-fill" style="width:100%;background:var(--accent3)"></div></div></div>
+        <div class="macro-bar-wrap"><div class="macro-label"><span>Pecho</span><span style="color:var(--muted)">2×/sem</span></div><div class="macro-bar"><div class="macro-fill" style="width:75%;background:var(--muted)"></div></div></div>
+        <div class="macro-bar-wrap"><div class="macro-label"><span>Bíceps</span><span style="color:var(--muted)">2×/sem</span></div><div class="macro-bar"><div class="macro-fill" style="width:75%;background:var(--muted)"></div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">🎯 Objetivo</div>
+      <div style="font-family:'Bebas Neue';font-size:42px;color:var(--accent);line-height:1;">76<span style="font-size:18px">kg</span></div>
+      <div style="font-size:10px;color:var(--muted);margin-bottom:8px;">Junio 2026 · ~90 días</div>
+      <div class="macro-bar-wrap"><div class="macro-label"><span>Progreso</span><span id="dash-pct">0%</span></div><div class="macro-bar"><div class="macro-fill" id="dash-bar" style="width:0%;background:var(--accent)"></div></div></div>
+      <div style="font-size:10px;color:var(--muted);margin-top:4px;" id="dash-txt">Registra tu peso para ver el progreso</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">⚠️ Consideraciones especiales</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;font-size:12px;">
+      <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:10px;"><div style="font-weight:700;color:var(--danger);margin-bottom:3px;">🦴 Lumbares sensibles</div>Lordosis + escoliosis. Sin cargas axiales de pie. Protocolo progresivo de 2 fases.</div>
+      <div style="background:rgba(124,92,252,.07);border:1px solid rgba(124,92,252,.2);border-radius:10px;padding:10px;"><div style="font-weight:700;color:var(--accent3);margin-bottom:3px;">🦵 Sin trabajo de pierna</div>Solo cardio en cinta 3.5–5 km.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PLAN -->
+<div class="section" id="tab-plan">
+  <div class="section-title">💪 Plan de entrenamiento</div>
+  <p style="color:var(--muted);font-size:12px;margin-bottom:13px;">Toca un día para ver todos los ejercicios con animaciones de técnica y músculo activado.</p>
+  <div class="days-grid" id="days-grid"></div>
+</div>
+
+<!-- MODAL -->
+<div class="modal-overlay" id="modal" onclick="handleModalClick(event)">
+  <div class="modal" id="modal-box">
+    <div class="modal-header">
+      <div>
+        <div id="modal-title" style="font-family:'Bebas Neue';font-size:21px;letter-spacing:2px;"></div>
+        <div id="modal-sub" style="font-size:11px;color:var(--muted);margin-top:1px;"></div>
+      </div>
+      <button class="modal-close" onclick="closeModal()">✕</button>
+    </div>
+    <div class="modal-body">
+      <div style="margin-bottom:11px;background:var(--dark);border-radius:9px;padding:9px 12px;font-size:11px;color:var(--muted);">
+        ⏱ <strong style="color:var(--text)">60 min fuerza</strong> + <strong style="color:var(--text)">30 min cardio</strong> &nbsp;|&nbsp; 🏃 3.5–5 km en cinta
+      </div>
+      <div id="modal-exercises"></div>
+    </div>
+  </div>
+</div>
+
+<!-- SEGUIMIENTO -->
+<div class="section" id="tab-tracker">
+  <div class="section-title">⚖️ Seguimiento de peso</div>
+  <div class="tracker-controls">
+    <div class="input-group"><div class="input-label">Peso (kg)</div><input class="inp" type="number" id="inp-weight" step="0.1" placeholder="83.0" inputmode="decimal"></div>
+    <div class="input-group"><div class="input-label">Fecha</div><input class="inp" type="date" id="inp-date"></div>
+    <div class="input-group"><div class="input-label">Objetivo (kg)</div><input class="inp" type="number" id="inp-goal" step="0.1" value="76" inputmode="decimal"></div>
+    <div class="input-group"><div class="input-label">Fecha objetivo</div><input class="inp" type="date" id="inp-goal-date" value="2026-06-30"></div>
+    <div class="input-group"><div class="input-label">&nbsp;</div><button class="btn btn-accent" onclick="addWeight()">+ Añadir</button></div>
+    <div class="input-group"><div class="input-label">&nbsp;</div><button class="btn btn-danger" onclick="clearWeights()">🗑 Borrar</button></div>
+  </div>
+  <div id="status-banner" class="status-banner status-neutral"><span>📊</span><span>Registra tu peso para ver el análisis</span></div>
+  <div class="grid-2">
+    <div class="card"><div class="card-title">📈 Progresión</div><div class="chart-container"><canvas id="weightChart"></canvas></div></div>
+    <div class="card"><div class="card-title">🎯 Proyección</div><div class="chart-container"><canvas id="projChart"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="card-title">📋 Historial</div>
+    <div style="overflow-x:auto;">
+      <table class="weight-history"><thead><tr><th>Fecha</th><th>Peso</th><th>Cambio</th><th>vs Ideal</th><th>Estado</th></tr></thead><tbody id="weight-tbody"></tbody></table>
+      <div id="no-data-msg" style="text-align:center;padding:22px;color:var(--muted);font-size:12px;">No hay registros aún. ¡Añade tu primer pesaje!</div>
+    </div>
+  </div>
+</div>
+
+<!-- NUTRICIÓN -->
+<div class="section" id="tab-nutricion">
+  <div class="section-title">🥗 Nutrición</div>
+  <div class="grid-3">
+    <div class="card" style="text-align:center;"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">Calorías objetivo</div><div style="font-family:'Bebas Neue';font-size:40px;color:var(--accent);line-height:1.1;">2.295</div><div style="font-size:10px;color:var(--muted);">kcal/día (déficit -400)</div></div>
+    <div class="card" style="text-align:center;"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">TMB</div><div style="font-family:'Bebas Neue';font-size:40px;color:var(--accent3);line-height:1.1;">1.740</div><div style="font-size:10px;color:var(--muted);">kcal en reposo</div></div>
+    <div class="card" style="text-align:center;"><div style="font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:1px;">TDEE activo</div><div style="font-family:'Bebas Neue';font-size:40px;color:var(--accent2);line-height:1.1;">2.695</div><div style="font-size:10px;color:var(--muted);">kcal con 4-5 días gym</div></div>
+  </div>
+  <div class="grid-2">
+    <div class="card">
+      <div class="card-title">🔬 Macros</div>
+      <div class="chart-container" style="height:175px;"><canvas id="macroChart"></canvas></div>
+      <div style="font-size:12px;margin-top:8px;">
+        <div class="macro-bar-wrap"><div class="macro-label"><span>🥩 Proteína</span><span style="color:var(--accent)"><b>200g</b> — 800 kcal (35%)</span></div><div class="macro-bar" style="height:9px;"><div class="macro-fill" style="width:35%;background:var(--accent)"></div></div></div>
+        <div class="macro-bar-wrap"><div class="macro-label"><span>🍚 Hidratos</span><span style="color:var(--accent3)"><b>230g</b> — 920 kcal (40%)</span></div><div class="macro-bar" style="height:9px;"><div class="macro-fill" style="width:40%;background:var(--accent3)"></div></div></div>
+        <div class="macro-bar-wrap"><div class="macro-label"><span>🫒 Grasas</span><span style="color:var(--accent2)"><b>64g</b> — 575 kcal (25%)</span></div><div class="macro-bar" style="height:9px;"><div class="macro-fill" style="width:25%;background:var(--accent2)"></div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="card-title">⏰ Timing nutricional</div>
+      <div style="font-size:12px;">
+        <div style="padding:8px 0;border-bottom:1px solid var(--border);"><div style="font-weight:700;color:var(--warn);margin-bottom:2px;">🌅 Pre-entreno (1-2h)</div><div style="color:var(--muted);">40-60g HC + 20-30g proteína · Arroz + pechuga</div></div>
+        <div style="padding:8px 0;border-bottom:1px solid var(--border);"><div style="font-weight:700;color:var(--accent);margin-bottom:2px;">🏋️ Post-entreno</div><div style="color:var(--muted);">40g HC simples + 30-40g proteína · Whey + plátano</div></div>
+        <div style="padding:8px 0;border-bottom:1px solid var(--border);"><div style="font-weight:700;color:var(--accent3);margin-bottom:2px;">🌙 Antes de dormir</div><div style="color:var(--muted);">20-30g caseína · Requesón 0%</div></div>
+        <div style="padding:8px 0;"><div style="font-weight:700;color:var(--muted);margin-bottom:2px;">🍽️ Resto</div><div style="color:var(--muted);">2-3 comidas, cada 3-4 horas</div></div>
+      </div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="card-title">💊 Suplementación</div>
+    <div style="display:grid;grid-template-columns:repeat(auto-fill,minmax(135px,1fr));gap:9px;font-size:11px;">
+      <div style="background:rgba(0,212,170,.07);border:1px solid rgba(0,212,170,.2);border-radius:10px;padding:10px;"><div style="font-size:16px;margin-bottom:3px;">🥛</div><div style="font-weight:700;color:var(--accent);">Proteína Whey</div><div style="color:var(--muted);margin-top:2px;">1-2 tomas/día</div></div>
+      <div style="background:rgba(124,92,252,.07);border:1px solid rgba(124,92,252,.2);border-radius:10px;padding:10px;"><div style="font-size:16px;margin-bottom:3px;">⚡</div><div style="font-weight:700;color:var(--accent3);">Creatina mono.</div><div style="color:var(--muted);margin-top:2px;">5g/día</div></div>
+      <div style="background:rgba(245,158,11,.07);border:1px solid rgba(245,158,11,.2);border-radius:10px;padding:10px;"><div style="font-size:16px;margin-bottom:3px;">🌙</div><div style="font-weight:700;color:var(--warn);">Magnesio bisg.</div><div style="color:var(--muted);margin-top:2px;">300mg noche</div></div>
+      <div style="background:rgba(255,107,53,.07);border:1px solid rgba(255,107,53,.2);border-radius:10px;padding:10px;"><div style="font-size:16px;margin-bottom:3px;">☀️</div><div style="font-weight:700;color:var(--accent2);">Vitamina D3+K2</div><div style="color:var(--muted);margin-top:2px;">2.000-4.000 UI</div></div>
+      <div style="background:rgba(34,197,94,.07);border:1px solid rgba(34,197,94,.2);border-radius:10px;padding:10px;"><div style="font-size:16px;margin-bottom:3px;">🐟</div><div style="font-weight:700;color:var(--success);">Omega-3</div><div style="color:var(--muted);margin-top:2px;">2-3g EPA+DHA</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- LUMBAR -->
+<div class="section" id="tab-lumbar">
+  <div class="section-title">🦴 Protocolo lumbar</div>
+  <div class="card" style="margin-bottom:13px;">
+    <div class="card-title">❓ ¿Por qué has tenido dolor?</div>
+    <div style="font-size:12px;color:var(--muted);line-height:1.7;">Con <strong style="color:var(--accent2)">lordosis</strong>, empezar con extensión lumbar directa genera compresión en las facetas → dolor. Solución: <strong style="color:var(--accent)">2 fases</strong>. Primero antiextensión, luego extensión controlada.</div>
+  </div>
+  <div class="phase-toggle">
+    <button class="phase-btn active" onclick="showPhase(1,this)">FASE 1 · Sem. 1-4</button>
+    <button class="phase-btn" onclick="showPhase(2,this)">FASE 2 · Sem. 5-8</button>
+  </div>
+  <div class="card" id="phase1-content"><div class="card-title" style="color:var(--accent);">✅ Antiextensión — base</div><div id="phase1-ex"></div></div>
+  <div class="card" id="phase2-content" style="display:none;"><div class="card-title" style="color:var(--accent2);">⚠️ Solo si Fase 1 sin dolor</div><div id="phase2-ex"></div></div>
+  <div class="card" style="margin-top:13px;">
+    <div class="card-title">🚨 Señales de alarma</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;font-size:12px;">
+      <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:10px;"><div style="font-weight:700;color:var(--danger);margin-bottom:5px;">🔴 PARA si sientes:</div><div style="color:var(--muted);line-height:1.7;">• Dolor lumbar agudo<br>• Dolor hacia glúteo/pierna<br>• Hormigueo extremidades<br>• Empeora al estar de pie</div></div>
+      <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:10px;"><div style="font-weight:700;color:var(--success);margin-bottom:5px;">🟢 Es normal:</div><div style="color:var(--muted);line-height:1.7;">• Leve tensión post-entreno<br>• Cansancio paravertebrales<br>• Agujetas primeras semanas<br>• Incomodidad leve al inicio</div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════════
+// SVG ANIMATIONS — 25 ejercicios originales estilo Fitcron
+// Figura anatómica + movimiento animado + músculo resaltado
+// Paleta: cuerpo #3a4a6b, músculo activado #FF6B35, fondo #0d1420
+// ═══════════════════════════════════════════════════════════════
+
+// Colores globales
+const C = {
+  bg: '#0d1420',
+  body: '#4a5a7a',
+  bodyLight: '#5a6a8a',
+  muscle: '#FF6B35',
+  muscleGlow: '#FF6B3566',
+  bone: '#6a7a9a',
+  dumbbell: '#8892A4',
+  bar: '#6a7a8a',
+  cable: '#4a5a6a',
+  bench: '#2a3a5a',
+  text: '#FF6B35',
+  textDim: '#8892A4',
+  white: '#E8EDF5',
+};
+
+// Helper: crear SVG base
+function mkSVG(content, viewBox='0 0 160 140') {
+  return `<svg viewBox="${viewBox}" xmlns="http://www.w3.org/2000/svg" style="background:${C.bg};border-radius:11px;">${content}</svg>`;
+}
+
+// ── HUMAN BODY PARTS ──────────────────────────────────────────
+// head(cx,cy,r), torso(x,y,w,h), upper arm, forearm, thigh, shin
+// All coordinates for 160×140 viewbox, figure centered ~80,70
+
+function head(cx=80,cy=22,r=9,col=C.body){ return `<circle cx="${cx}" cy="${cy}" r="${r}" fill="${col}" />`; }
+function torso(x=68,y=30,w=24,h=30,col=C.body,rx=4){ return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="${rx}" fill="${col}"/>`; }
+function limb(x1,y1,x2,y2,w=6,col=C.body,cap='round'){ return `<line x1="${x1}" y1="${y1}" x2="${x2}" y2="${y2}" stroke="${col}" stroke-width="${w}" stroke-linecap="${cap}"/>`; }
+function ellipseMuscle(cx,cy,rx,ry,col=C.muscle,op=0.85){ return `<ellipse cx="${cx}" cy="${cy}" rx="${rx}" ry="${ry}" fill="${col}" opacity="${op}"/>`; }
+function label(x,y,txt,col=C.muscle,size=8){ return `<text x="${x}" y="${y}" fill="${col}" font-size="${size}" font-family="DM Sans,sans-serif" font-weight="700" text-anchor="middle">${txt}</text>`; }
+function dumbbell(x,y,angle=0,scale=1){ 
+  const t = angle ? `transform="rotate(${angle},${x},${y})"` : '';
+  const s = scale !== 1 ? `transform="scale(${scale})"` : '';
+  return `<g ${t}>
+    <rect x="${x-12}" y="${y-3}" width="24" height="6" rx="2" fill="${C.dumbbell}"/>
+    <rect x="${x-15}" y="${y-5}" width="4" height="10" rx="1" fill="${C.bar}"/>
+    <rect x="${x+11}" y="${y-5}" width="4" height="10" rx="1" fill="${C.bar}"/>
+  </g>`;
+}
+function bench(x=50,y=95,w=60,h=8){ return `<rect x="${x}" y="${y}" width="${w}" height="${h}" rx="3" fill="${C.bench}"/><rect x="${x+5}" y="${y+h}" width="10" height="8" rx="2" fill="${C.bench}"/><rect x="${x+w-15}" y="${y+h}" width="10" height="8" rx="2" fill="${C.bench}"/>`; }
+function pulley(x,y){ return `<circle cx="${x}" cy="${y}" r="5" fill="none" stroke="${C.dumbbell}" stroke-width="2"/><line x1="${x}" y1="${y+5}" x2="${x}" y2="${y+30}" stroke="${C.cable}" stroke-width="1.5" stroke-dasharray="3,2"/>`; }
+
+// ── 25 ANIMACIONES SVG ────────────────────────────────────────
+
+const ANIMS = {};
+
+// 1. CALENTAMIENTO
+ANIMS['calentamiento'] = () => mkSVG(`
+  <style>
+    .cw-armL{transform-origin:78px 38px;animation:cwL 1s ease-in-out infinite alternate;}
+    .cw-armR{transform-origin:82px 38px;animation:cwR 1s ease-in-out infinite alternate;}
+    @keyframes cwL{from{transform:rotate(-60deg);}to{transform:rotate(20deg);}}
+    @keyframes cwR{from{transform:rotate(60deg);}to{transform:rotate(-20deg);}}
+  </style>
+  ${head(80,20)}
+  ${torso(68,28,24,28)}
+  <!-- Hombros resaltados -->
+  ${ellipseMuscle(70,33,9,7)}
+  ${ellipseMuscle(90,33,9,7)}
+  <!-- brazo izq -->
+  <g class="cw-armL">${limb(72,33,52,50,5,C.body)}</g>
+  <!-- brazo der -->
+  <g class="cw-armR">${limb(88,33,108,50,5,C.body)}</g>
+  <!-- piernas estáticas -->
+  ${limb(74,56,68,85,6,C.body)}
+  ${limb(86,56,92,85,6,C.body)}
+  ${label(80,132,'DELTOIDES')}
+  ${label(80,122,'Calentamiento',C.textDim,7)}
+`);
+
+// 2. PRESS MILITAR MANCUERNAS
+ANIMS['press militar'] = () => mkSVG(`
+  <style>
+    .pm-arms{transform-origin:80px 45px;animation:pmUp 1.4s ease-in-out infinite alternate;}
+    .pm-dbs{transform-origin:80px 45px;animation:pmUp 1.4s ease-in-out infinite alternate;}
+    @keyframes pmUp{from{transform:translateY(0);}to{transform:translateY(-14px);}}
+  </style>
+  <!-- banco vertical -->
+  <rect x="52" y="55" width="10" height="40" rx="3" fill="${C.bench}"/>
+  <rect x="44" y="90" width="26" height="7" rx="3" fill="${C.bench}"/>
+  ${head(80,18)}
+  ${torso(68,26,24,30)}
+  <!-- deltoides resaltados -->
+  ${ellipseMuscle(69,32,9,7)}
+  ${ellipseMuscle(91,32,9,7)}
+  <!-- brazos animados -->
+  <g class="pm-arms">
+    ${limb(72,34,52,42,5,C.body)}
+    ${limb(88,34,108,42,5,C.body)}
+    ${limb(52,42,50,34,5,C.body)}
+    ${limb(108,42,110,34,5,C.body)}
+  </g>
+  <g class="pm-dbs">
+    ${dumbbell(48,32)}
+    ${dumbbell(112,32)}
+  </g>
+  <!-- piernas -->
+  ${limb(74,56,70,85,6,C.body)}
+  ${limb(86,56,90,85,6,C.body)}
+  ${label(80,132,'DELTOIDES')}
+  ${label(80,122,'Press Militar',C.textDim,7)}
+`);
+
+// 3. PRESS ARNOLD
+ANIMS['press arnold'] = () => mkSVG(`
+  <style>
+    .pa-arms{transform-origin:80px 42px;animation:paUp 1.5s ease-in-out infinite alternate;}
+    .pa-rot{transform-origin:80px 42px;animation:paRot 1.5s ease-in-out infinite alternate;}
+    @keyframes paUp{from{transform:translateY(0) rotate(0deg);}to{transform:translateY(-12px) rotate(8deg);}}
+    @keyframes paRot{from{transform:translateY(0) rotate(0deg);}to{transform:translateY(-12px) rotate(-8deg);}}
+  </style>
+  <rect x="52" y="55" width="10" height="40" rx="3" fill="${C.bench}"/>
+  <rect x="44" y="90" width="26" height="7" rx="3" fill="${C.bench}"/>
+  ${head(80,18)}
+  ${torso(68,26,24,30)}
+  ${ellipseMuscle(68,31,10,8)}
+  ${ellipseMuscle(92,31,10,8)}
+  <g class="pa-arms">
+    ${limb(72,33,50,46,5,C.body)}
+    ${limb(50,46,48,38,5,C.body)}
+    ${dumbbell(46,35)}
+  </g>
+  <g class="pa-rot">
+    ${limb(88,33,110,46,5,C.body)}
+    ${limb(110,46,112,38,5,C.body)}
+    ${dumbbell(114,35)}
+  </g>
+  ${limb(74,56,70,85,6,C.body)}
+  ${limb(86,56,90,85,6,C.body)}
+  ${label(80,132,'DELTOIDES 3 HACES')}
+  ${label(80,122,'Press Arnold',C.textDim,7)}
+`);
+
+// 4. ELEVACIONES LATERALES
+ANIMS['elevaciones laterales'] = () => mkSVG(`
+  <style>
+    .el-armL{transform-origin:72px 36px;animation:elUp 1.3s ease-in-out infinite alternate;}
+    .el-armR{transform-origin:88px 36px;animation:elUp 1.3s ease-in-out infinite alternate;}
+    @keyframes elUp{from{transform:rotate(25deg);}to{transform:rotate(-25deg);}}
+  </style>
+  ${head(80,20)}
+  ${torso(68,28,24,28)}
+  ${ellipseMuscle(69,33,9,7)}
+  ${ellipseMuscle(91,33,9,7)}
+  <g class="el-armL">
+    ${limb(72,36,48,50,5,C.body)}
+    ${dumbbell(44,52)}
+  </g>
+  <g class="el-armR">
+    ${limb(88,36,112,50,5,C.body)}
+    ${dumbbell(116,52)}
+  </g>
+  ${limb(74,56,68,85,6,C.body)}
+  ${limb(86,56,92,85,6,C.body)}
+  ${label(80,132,'DELTOIDES LATERAL')}
+  ${label(80,122,'Elev. Laterales',C.textDim,7)}
+`);
+
+// 5. ELEVACIONES FRONTALES
+ANIMS['elevaciones frontales'] = () => mkSVG(`
+  <style>
+    .ef-armL{transform-origin:72px 38px;animation:efF 1.3s ease-in-out infinite alternate;}
+    .ef-armR{transform-origin:88px 38px;animation:efF2 1.3s ease-in-out infinite alternate;}
+    @keyframes efF{from{transform:rotate(5deg);}to{transform:rotate(-50deg);}}
+    @keyframes efF2{from{transform:rotate(-5deg);}to{transform:rotate(50deg);}}
+  </style>
+  ${head(80,20)}
+  ${torso(68,28,24,28)}
+  ${ellipseMuscle(73,29,8,6)}
+  ${ellipseMuscle(87,29,8,6)}
+  <g class="ef-armL">
+    ${limb(72,38,58,60,5,C.body)}
+    ${dumbbell(55,63)}
+  </g>
+  <g class="ef-armR">
+    ${limb(88,38,102,60,5,C.body)}
+    ${dumbbell(105,63)}
+  </g>
+  ${limb(74,56,68,85,6,C.body)}
+  ${limb(86,56,92,85,6,C.body)}
+  ${label(80,132,'DELTOIDES ANTERIOR')}
+  ${label(80,122,'Elev. Frontales',C.textDim,7)}
+`);
+
+// 6. FACE PULLS
+ANIMS['face pulls'] = () => mkSVG(`
+  <style>
+    .fp-arms{animation:fpPull 1.3s ease-in-out infinite alternate;}
+    @keyframes fpPull{from{transform:translateX(12px);}to{transform:translateX(-2px);}}
+  </style>
+  <!-- polea -->
+  <rect x="130" y="10" width="12" height="60" rx="3" fill="${C.bench}"/>
+  <circle cx="130" cy="38" r="5" fill="${C.dumbbell}"/>
+  <line x1="130" y1="43" x2="104" y2="43" stroke="${C.cable}" stroke-width="1.5"/>
+  ${head(80,20)}
+  ${torso(68,28,24,28)}
+  <!-- deltoides posterior resaltado -->
+  ${ellipseMuscle(68,34,9,7)}
+  ${ellipseMuscle(92,34,9,7)}
+  <!-- trapecio -->
+  ${ellipseMuscle(80,30,8,5,C.muscle,0.6)}
+  <g class="fp-arms">
+    ${limb(72,34,52,38,5,C.body)}
+    ${limb(52,38,50,46,5,C.body)}
+    ${limb(88,34,108,38,5,C.body)}
+    ${limb(108,38,110,46,5,C.body)}
+  </g>
+  ${limb(74,56,68,85,6,C.body)}
+  ${limb(86,56,92,85,6,C.body)}
+  ${label(80,132,'DELTOIDES POST.')}
+  ${label(80,122,'Face Pulls',C.textDim,7)}
+`);
+
+// 7. PRESS BANCA INCLINADO
+ANIMS['press banca inclinado'] = () => mkSVG(`
+  <style>
+    .pi-arms{transform-origin:80px 58px;animation:piPress 1.4s ease-in-out infinite alternate;}
+    @keyframes piPress{from{transform:translateY(0);}to{transform:translateY(-10px);}}
+  </style>
+  <!-- banco inclinado -->
+  <line x1="35" y1="100" x2="115" y2="70" stroke="${C.bench}" stroke-width="10" stroke-linecap="round"/>
+  <line x1="35" y1="100" x2="35" y2="115" stroke="${C.bench}" stroke-width="6" stroke-linecap="round"/>
+  <line x1="115" y1="70" x2="115" y2="115" stroke="${C.bench}" stroke-width="6" stroke-linecap="round"/>
+  <!-- figura tumbada inclinada -->
+  ${head(105,62)}
+  <line x1="98" y1="66" x2="48" y2="90" stroke="${C.body}" stroke-width="14" stroke-linecap="round"/>
+  <!-- pectoral resaltado -->
+  ${ellipseMuscle(82,72,14,8)}
+  <!-- brazos -->
+  <g class="pi-arms" style="transform-origin:80px 72px">
+    ${limb(88,68,100,56,5,C.body)}
+    ${limb(100,56,104,48,5,C.body)}
+    ${dumbbell(104,46,15)}
+    ${limb(72,76,60,64,5,C.body)}
+    ${limb(60,64,56,56,5,C.body)}
+    ${dumbbell(56,54,15)}
+  </g>
+  <!-- piernas -->
+  ${limb(48,90,40,110,6,C.body)}
+  ${limb(52,92,55,112,6,C.body)}
+  ${label(80,132,'PECTORAL SUPERIOR')}
+  ${label(80,122,'Press Inclinado',C.textDim,7)}
+`);
+
+// 8. PRESS BANCA PLANO
+ANIMS['press banca plano'] = () => mkSVG(`
+  <style>
+    .pb-arms{animation:pbPress 1.4s ease-in-out infinite alternate;}
+    @keyframes pbPress{from{transform:translateY(0);}to{transform:translateY(-11px);}}
+  </style>
+  ${bench(30,88,100)}
+  <!-- figura tumbada -->
+  ${head(110,82)}
+  <line x1="102" y1="86" x2="38" y2="86" stroke="${C.body}" stroke-width="14" stroke-linecap="round"/>
+  <!-- pectoral -->
+  ${ellipseMuscle(72,82,18,8)}
+  <!-- brazos animados -->
+  <g class="pb-arms" style="transform-origin:72px 80px">
+    ${limb(90,82,102,70,5,C.body)}
+    ${limb(102,70,104,62,5,C.body)}
+    ${dumbbell(103,60)}
+    ${limb(54,82,42,70,5,C.body)}
+    ${limb(42,70,40,62,5,C.body)}
+    ${dumbbell(40,60)}
+  </g>
+  <!-- piernas -->
+  ${limb(38,88,32,108,6,C.body)}
+  ${limb(44,88,48,108,6,C.body)}
+  ${label(80,132,'PECTORAL')}
+  ${label(80,122,'Press Banca Plano',C.textDim,7)}
+`);
+
+// 9. APERTURAS POLEA
+ANIMS['aperturas'] = () => mkSVG(`
+  <style>
+    .ap-armL{transform-origin:72px 40px;animation:apOpen 1.3s ease-in-out infinite alternate;}
+    .ap-armR{transform-origin:88px 40px;animation:apOpenR 1.3s ease-in-out infinite alternate;}
+    @keyframes apOpen{from{transform:rotate(-20deg);}to{transform:rotate(25deg);}}
+    @keyframes apOpenR{from{transform:rotate(20deg);}to{transform:rotate(-25deg);}}
+  </style>
+  <!-- poleas laterales -->
+  <circle cx="20" cy="55" r="6" fill="none" stroke="${C.dumbbell}" stroke-width="2"/>
+  <circle cx="140" cy="55" r="6" fill="none" stroke="${C.dumbbell}" stroke-width="2"/>
+  ${head(80,20)}
+  ${torso(68,28,24,28)}
+  ${ellipseMuscle(75,38,10,8)}
+  ${ellipseMuscle(85,38,10,8)}
+  <g class="ap-armL">
+    ${limb(72,40,30,56,5,C.body)}
+    <line x1="30" y1="56" x2="20" y2="54" stroke="${C.cable}" stroke-width="1.5"/>
+  </g>
+  <g class="ap-armR">
+    ${limb(88,40,130,56,5,C.body)}
+    <line x1="130" y1="56" x2="140" y2="54" stroke="${C.cable}" stroke-width="1.5"/>
+  </g>
+  ${limb(74,56,68,85,6,C.body)}
+  ${limb(86,56,92,85,6,C.body)}
+  ${label(80,132,'PECTORAL')}
+  ${label(80,122,'Aperturas Polea',C.textDim,7)}
+`);
+
+// 10. FONDOS PARALELAS
+ANIMS['fondos'] = () => mkSVG(`
+  <style>
+    .fo-body{animation:foDown 1.3s ease-in-out infinite alternate;}
+    @keyframes foDown{from{transform:translateY(0);}to{transform:translateY(10px);}}
+  </style>
+  <!-- barras paralelas -->
+  <line x1="25" y1="35" x2="25" y2="90" stroke="${C.bench}" stroke-width="6" stroke-linecap="round"/>
+  <line x1="135" y1="35" x2="135" y2="90" stroke="${C.bench}" stroke-width="6" stroke-linecap="round"/>
+  <g class="fo-body">
+    ${head(80,15)}
+    ${torso(68,23,24,28)}
+    <!-- tríceps resaltado -->
+    ${ellipseMuscle(68,35,8,6)}
+    ${ellipseMuscle(92,35,8,6)}
+    <!-- brazos -->
+    ${limb(70,30,27,38,5,C.body)}
+    ${limb(90,30,133,38,5,C.body)}
+    <!-- manos en barras -->
+    <circle cx="25" cy="40" r="5" fill="${C.body}"/>
+    <circle cx="135" cy="40" r="5" fill="${C.body}"/>
+    <!-- piernas dobladas -->
+    ${limb(74,51,66,72,6,C.body)}
+    ${limb(66,72,70,88,6,C.body)}
+    ${limb(86,51,94,72,6,C.body)}
+    ${limb(94,72,90,88,6,C.body)}
+  </g>
+  ${label(80,132,'TRÍCEPS')}
+  ${label(80,122,'Fondos',C.textDim,7)}
+`);
+
+// 11. EXTENSIONES TRICEPS POLEA
+ANIMS['extensiones triceps'] = () => mkSVG(`
+  <style>
+    .et-forearm{transform-origin:72px 50px;animation:etExt 1.2s ease-in-out infinite alternate;}
+    .et-forearmR{transform-origin:88px 50px;animation:etExt 1.2s ease-in-out infinite alternate;}
+    @keyframes etExt{from{transform:rotate(-30deg);}to{transform:rotate(15deg);}}
+  </style>
+  <!-- polea arriba -->
+  <rect x="65" y="5" width="30" height="8" rx="3" fill="${C.bench}"/>
+  <circle cx="80" cy="16" r="5" fill="${C.dumbbell}"/>
+  <line x1="80" y1="21" x2="80" y2="38" stroke="${C.cable}" stroke-width="1.5"/>
+  ${head(80,22)}
+  ${torso(68,30,24,26)}
+  <!-- tríceps -->
+  ${ellipseMuscle(68,42,8,6)}
+  ${ellipseMuscle(92,42,8,6)}
+  <!-- brazos superiores fijos -->
+  ${limb(72,36,68,52,5,C.body)}
+  ${limb(88,36,92,52,5,C.body)}
+  <!-- antebrazos animados -->
+  <g class="et-forearm" style="transform-origin:68px 52px">
+    ${limb(68,52,60,72,5,C.body)}
+  </g>
+  <g class="et-forearmR" style="transform-origin:92px 52px">
+    ${limb(92,52,100,72,5,C.body)}
+  </g>
+  <!-- barra/cuerda -->
+  <rect x="58" y="70" width="44" height="5" rx="2" fill="${C.dumbbell}"/>
+  ${limb(74,58,86,58,6,C.body)}
+  ${limb(74,80,68,105,6,C.body)}
+  ${limb(86,80,92,105,6,C.body)}
+  ${label(80,132,'TRÍCEPS')}
+  ${label(80,122,'Ext. Tríceps Polea',C.textDim,7)}
+`);
+
+// 12. PRESS FRANCES
+ANIMS['press frances'] = () => mkSVG(`
+  <style>
+    .pf-forearms{transform-origin:80px 72px;animation:pfExt 1.4s ease-in-out infinite alternate;}
+    @keyframes pfExt{from{transform:rotate(-35deg);}to{transform:rotate(5deg);}}
+  </style>
+  ${bench(28,90,104)}
+  <!-- figura tumbada -->
+  ${head(112,84)}
+  <line x1="104" y1="88" x2="35" y2="88" stroke="${C.body}" stroke-width="12" stroke-linecap="round"/>
+  <!-- tríceps cabeza larga -->
+  ${ellipseMuscle(85,82,12,6)}
+  ${ellipseMuscle(70,82,10,6)}
+  <!-- brazos fijos (parte superior) -->
+  ${limb(95,84,88,72,5,C.body)}
+  ${limb(65,84,72,72,5,C.body)}
+  <!-- antebrazos animados -->
+  <g class="pf-forearms">
+    ${limb(88,72,92,55,5,C.body)}
+    ${limb(72,72,68,55,5,C.body)}
+    <!-- barra EZ -->
+    <rect x="60" y="50" width="40" height="5" rx="2" fill="${C.dumbbell}"/>
+    <rect x="56" y="47" width="6" height="11" rx="1" fill="${C.bar}"/>
+    <rect x="98" y="47" width="6" height="11" rx="1" fill="${C.bar}"/>
+  </g>
+  <!-- piernas -->
+  ${limb(35,90,28,110,6,C.body)}
+  ${limb(42,90,46,110,6,C.body)}
+  ${label(80,132,'TRÍCEPS')}
+  ${label(80,122,'Press Francés',C.textDim,7)}
+`);
+
+// 13. JALONES AL PECHO
+ANIMS['jalones'] = () => mkSVG(`
+  <style>
+    .jl-arms{animation:jlDown 1.4s ease-in-out infinite alternate;}
+    .jl-bar{animation:jlDown 1.4s ease-in-out infinite alternate;}
+    @keyframes jlDown{from{transform:translateY(-8px);}to{transform:translateY(5px);}}
+  </style>
+  <!-- máquina arriba -->
+  <rect x="40" y="5" width="80" height="8" rx="3" fill="${C.bench}"/>
+  <circle cx="80" cy="16" r="5" fill="${C.dumbbell}"/>
+  <line x1="80" y1="21" x2="80" y2="35" stroke="${C.cable}" stroke-width="1.5"/>
+  ${head(80,22)}
+  ${torso(68,30,24,26)}
+  <!-- dorsal resaltado -->
+  ${ellipseMuscle(68,42,10,12,C.muscle,0.8)}
+  ${ellipseMuscle(92,42,10,12,C.muscle,0.8)}
+  <g class="jl-arms">
+    ${limb(72,34,42,28,5,C.body)}
+    ${limb(88,34,118,28,5,C.body)}
+  </g>
+  <g class="jl-bar">
+    <rect x="35" y="24" width="90" height="5" rx="2" fill="${C.dumbbell}"/>
+    <rect x="31" y="21" width="6" height="11" rx="1" fill="${C.bar}"/>
+    <rect x="123" y="21" width="6" height="11" rx="1" fill="${C.bar}"/>
+  </g>
+  <!-- sentado -->
+  ${limb(74,56,66,85,6,C.body)}
+  ${limb(86,56,94,85,6,C.body)}
+  ${limb(66,85,56,85,6,C.body)}
+  ${limb(94,85,104,85,6,C.body)}
+  ${label(80,132,'DORSAL ANCHO')}
+  ${label(80,122,'Jalones al Pecho',C.textDim,7)}
+`);
+
+// 14. REMO CABLE SENTADO
+ANIMS['remo maquina'] = () => mkSVG(`
+  <style>
+    .rm-arms{animation:rmRow 1.3s ease-in-out infinite alternate;}
+    @keyframes rmRow{from{transform:translateX(-8px);}to{transform:translateX(6px);}}
+  </style>
+  <!-- máquina -->
+  <rect x="5" y="40" width="12" height="50" rx="3" fill="${C.bench}"/>
+  <circle cx="17" cy="58" r="5" fill="${C.dumbbell}"/>
+  ${head(100,22)}
+  ${torso(88,30,24,26)}
+  <!-- dorsal + romboides -->
+  ${ellipseMuscle(90,40,12,10,C.muscle,0.85)}
+  ${ellipseMuscle(90,50,8,6,C.muscle,0.6)}
+  <!-- cable -->
+  <line x1="17" y1="58" x2="58" y2="55" stroke="${C.cable}" stroke-width="1.5"/>
+  <g class="rm-arms">
+    ${limb(90,36,68,48,5,C.body)}
+    ${limb(68,48,60,56,5,C.body)}
+    ${limb(100,36,122,48,5,C.body)}
+    ${limb(122,48,130,56,5,C.body)}
+    <!-- handle -->
+    <rect x="56" y="52" width="10" height="6" rx="2" fill="${C.dumbbell}"/>
+  </g>
+  <!-- sentado -->
+  ${limb(90,56,80,85,6,C.body)}
+  ${limb(100,56,110,85,6,C.body)}
+  ${limb(80,85,68,85,7,C.body)}
+  ${limb(110,85,122,85,7,C.body)}
+  ${label(80,132,'DORSAL · ROMBOIDES')}
+  ${label(80,122,'Remo Cable',C.textDim,7)}
+`);
+
+// 15. REMO UNILATERAL
+ANIMS['remo unilateral'] = () => mkSVG(`
+  <style>
+    .ru-arm{transform-origin:85px 52px;animation:ruRow 1.3s ease-in-out infinite alternate;}
+    @keyframes ruRow{from{transform:rotate(20deg);}to{transform:rotate(-20deg);}}
+  </style>
+  ${bench(25,72,65)}
+  <!-- figura inclinada -->
+  ${head(105,38)}
+  <!-- torso inclinado -->
+  <line x1="98" y1="42" x2="38" y2="65" stroke="${C.body}" stroke-width="14" stroke-linecap="round"/>
+  <!-- dorsal resaltado -->
+  ${ellipseMuscle(78,52,14,8,C.muscle,0.85)}
+  <!-- apoyo brazo izq -->
+  ${limb(64,60,38,68,5,C.body)}
+  <!-- brazo derecho en movimiento -->
+  <g class="ru-arm">
+    ${limb(92,46,110,62,5,C.body)}
+    ${limb(110,62,112,75,5,C.body)}
+    ${dumbbell(111,78,20)}
+  </g>
+  <!-- piernas -->
+  ${limb(50,68,42,90,6,C.body)}
+  ${limb(38,68,40,90,6,C.body)}
+  ${label(80,132,'DORSAL ANCHO')}
+  ${label(80,122,'Remo Unilateral',C.textDim,7)}
+`);
+
+// 16. PULLOVER
+ANIMS['pull-over'] = () => mkSVG(`
+  <style>
+    .po-arms{transform-origin:72px 75px;animation:poArc 1.5s ease-in-out infinite alternate;}
+    @keyframes poArc{from{transform:rotate(-40deg);}to{transform:rotate(15deg);}}
+  </style>
+  ${bench(28,88,104)}
+  ${head(112,82)}
+  <line x1="104" y1="86" x2="35" y2="86" stroke="${C.body}" stroke-width="12" stroke-linecap="round"/>
+  <!-- dorsal en estiramiento -->
+  ${ellipseMuscle(75,78,16,8,C.muscle,0.85)}
+  <!-- brazos girando -->
+  <g class="po-arms" style="transform-origin:80px 82px">
+    ${limb(85,82,95,65,5,C.body)}
+    ${limb(75,82,65,65,5,C.body)}
+    ${limb(95,65,92,52,5,C.body)}
+    ${limb(65,65,68,52,5,C.body)}
+    ${dumbbell(80,48)}
+  </g>
+  ${limb(35,88,28,108,6,C.body)}
+  ${limb(42,88,46,108,6,C.body)}
+  ${label(80,132,'DORSAL ANCHO')}
+  ${label(80,122,'Pull-Over',C.textDim,7)}
+`);
+
+// 17. CURL BICEPS
+ANIMS['curl biceps'] = () => mkSVG(`
+  <style>
+    .cb-armL{transform-origin:68px 52px;animation:cbCurl 1.2s ease-in-out infinite alternate;}
+    .cb-armR{transform-origin:92px 52px;animation:cbCurl2 1.2s ease-in-out infinite alternate;}
+    @keyframes cbCurl{from{transform:rotate(35deg);}to{transform:rotate(-30deg);}}
+    @keyframes cbCurl2{from{transform:rotate(-15deg);}to{transform:rotate(20deg);}}
+  </style>
+  ${head(80,20)}
+  ${torso(68,28,24,28)}
+  <!-- bíceps resaltado -->
+  ${ellipseMuscle(65,45,7,10,C.muscle,0.85)}
+  ${ellipseMuscle(95,45,7,10,C.muscle,0.85)}
+  <!-- brazo sup izq fijo -->
+  ${limb(72,34,68,52,5,C.body)}
+  <!-- antebrazo izq animado -->
+  <g class="cb-armL">
+    ${limb(68,52,56,72,5,C.body)}
+    ${dumbbell(53,75)}
+  </g>
+  <!-- brazo sup der fijo -->
+  ${limb(88,34,92,52,5,C.body)}
+  <!-- antebrazo der animado -->
+  <g class="cb-armR">
+    ${limb(92,52,104,72,5,C.body)}
+    ${dumbbell(107,75)}
+  </g>
+  ${limb(74,56,68,85,6,C.body)}
+  ${limb(86,56,92,85,6,C.body)}
+  ${label(80,132,'BÍCEPS')}
+  ${label(80,122,'Curl Bíceps',C.textDim,7)}
+`);
+
+// 18. CURL MARTILLO
+ANIMS['curl martillo'] = () => mkSVG(`
+  <style>
+    .cm-arm{transform-origin:88px 52px;animation:cmCurl 1.2s ease-in-out infinite alternate;}
+    @keyframes cmCurl{from{transform:rotate(35deg);}to{transform:rotate(-30deg);}}
+  </style>
+  ${head(80,20)}
+  ${torso(68,28,24,28)}
+  ${ellipseMuscle(65,45,7,10,C.muscle,0.7)}
+  ${ellipseMuscle(95,45,7,10,C.muscle,0.85)}
+  <!-- bíceps braquial -->
+  ${ellipseMuscle(95,50,6,8,C.muscle,0.7)}
+  ${limb(72,34,68,52,5,C.body)}
+  ${limb(68,52,62,70,5,C.body)}
+  ${dumbbell(60,73,90)}
+  ${limb(88,34,92,52,5,C.body)}
+  <g class="cm-arm">
+    ${limb(92,52,104,72,5,C.body)}
+    ${dumbbell(104,74,90)}
+  </g>
+  ${limb(74,56,68,85,6,C.body)}
+  ${limb(86,56,92,85,6,C.body)}
+  ${label(80,132,'BRAQUIAL')}
+  ${label(80,122,'Curl Martillo',C.textDim,7)}
+`);
+
+// 19. CURL CONCENTRADO
+ANIMS['curl concentrado'] = () => mkSVG(`
+  <style>
+    .cc-forearm{transform-origin:82px 72px;animation:ccCurl 1.2s ease-in-out infinite alternate;}
+    @keyframes ccCurl{from{transform:rotate(30deg);}to{transform:rotate(-30deg);}}
+  </style>
+  <!-- figura sentada inclinada -->
+  ${head(108,28)}
+  <line x1="100" y1="32" x2="60" y2="55" stroke="${C.body}" stroke-width="12" stroke-linecap="round"/>
+  <!-- muslo (apoyo codo) -->
+  ${limb(62,55,48,85,16,C.body)}
+  ${limb(85,55,98,85,14,C.body)}
+  <!-- bíceps resaltado -->
+  ${ellipseMuscle(80,58,8,10,C.muscle,0.9)}
+  <!-- brazo superior apoyado -->
+  ${limb(90,40,82,58,6,C.body)}
+  ${limb(82,58,80,72,6,C.body)}
+  <!-- antebrazo animado -->
+  <g class="cc-forearm">
+    ${limb(80,72,74,90,5,C.body)}
+    ${dumbbell(72,93)}
+  </g>
+  ${label(80,132,'BÍCEPS')}
+  ${label(80,122,'Curl Concentrado',C.textDim,7)}
+`);
+
+// 20. CURL BANCO SCOTT
+ANIMS['curl banco scott'] = () => mkSVG(`
+  <style>
+    .cs-forearms{animation:csCurl 1.2s ease-in-out infinite alternate;}
+    @keyframes csCurl{from{transform:translateY(0) rotate(0deg);}to{transform:translateY(-8px);}}
+  </style>
+  <!-- banco scott inclinado -->
+  <line x1="35" y1="100" x2="115" y2="60" stroke="${C.bench}" stroke-width="8" stroke-linecap="round"/>
+  <!-- figura apoyada -->
+  ${head(110,40)}
+  <line x1="102" y1="44" x2="55" y2="80" stroke="${C.body}" stroke-width="10" stroke-linecap="round"/>
+  <!-- bíceps -->
+  ${ellipseMuscle(80,68,10,8,C.muscle,0.85)}
+  ${ellipseMuscle(68,72,8,6,C.muscle,0.75)}
+  <!-- brazos sobre el banco -->
+  <g class="cs-forearms" style="transform-origin:75px 72px">
+    ${limb(85,64,95,52,5,C.body)}
+    ${limb(65,76,55,64,5,C.body)}
+    <!-- barra EZ -->
+    <rect x="46" y="58" width="58" height="5" rx="2" fill="${C.dumbbell}"/>
+  </g>
+  ${label(80,132,'BÍCEPS')}
+  ${label(80,122,'Curl Banco Scott',C.textDim,7)}
+`);
+
+// 21. PLANCHA FRONTAL
+ANIMS['plancha frontal'] = () => mkSVG(`
+  <style>
+    .pf-body{animation:pfBreath 2.5s ease-in-out infinite alternate;}
+    @keyframes pfBreath{from{transform:translateY(0);}to{transform:translateY(-3px);}}
+  </style>
+  <!-- suelo -->
+  <line x1="10" y1="100" x2="150" y2="100" stroke="${C.bench}" stroke-width="3"/>
+  <g class="pf-body">
+    ${head(125,82)}
+    <!-- cuerpo recto -->
+    <line x1="116" y1="86" x2="30" y2="92" stroke="${C.body}" stroke-width="14" stroke-linecap="round"/>
+    <!-- core/abdomen resaltado -->
+    ${ellipseMuscle(78,88,20,6,C.muscle,0.85)}
+    <!-- lumbares -->
+    ${ellipseMuscle(58,90,10,5,C.muscle,0.6)}
+    <!-- antebrazos -->
+    ${limb(108,88,100,100,6,C.body)}
+    <line x1="100" y1="100" x2="78" y2="100" stroke="${C.body}" stroke-width="6" stroke-linecap="round"/>
+    ${limb(82,90,74,100,6,C.body)}
+    <line x1="74" y1="100" x2="52" y2="100" stroke="${C.body}" stroke-width="6" stroke-linecap="round"/>
+    <!-- pies -->
+    ${limb(30,92,22,100,6,C.body)}
+    ${limb(34,92,28,100,6,C.body)}
+  </g>
+  ${label(80,122,'CORE · TRANSVERSO')}
+  ${label(80,132,'Plancha Frontal',C.textDim,7)}
+`);
+
+// 22. DEAD BUG
+ANIMS['dead bug'] = () => mkSVG(`
+  <style>
+    .db-armR{transform-origin:85px 50px;animation:dbArmR 1.5s ease-in-out infinite alternate;}
+    .db-legL{transform-origin:62px 72px;animation:dbLegL 1.5s ease-in-out infinite alternate;}
+    @keyframes dbArmR{from{transform:rotate(-20deg);}to{transform:rotate(20deg);}}
+    @keyframes dbLegL{from{transform:rotate(-25deg);}to{transform:rotate(20deg);}}
+  </style>
+  <!-- suelo -->
+  <line x1="10" y1="108" x2="150" y2="108" stroke="${C.bench}" stroke-width="3"/>
+  <!-- figura tumbada boca arriba -->
+  ${head(80,38)}
+  <!-- torso -->
+  <ellipse cx="80" cy="65" rx="18" ry="22" fill="${C.body}"/>
+  <!-- core resaltado -->
+  ${ellipseMuscle(80,62,12,10,C.muscle,0.85)}
+  ${ellipseMuscle(80,72,10,8,C.muscle,0.6)}
+  <!-- brazo izq estático arriba -->
+  ${limb(68,50,48,28,5,C.body)}
+  <!-- brazo der animado -->
+  <g class="db-armR">
+    ${limb(92,50,112,28,5,C.body)}
+  </g>
+  <!-- pierna der estática (flexionada) -->
+  ${limb(86,82,100,100,6,C.body)}
+  ${limb(100,100,108,108,6,C.body)}
+  <!-- pierna izq animada -->
+  <g class="db-legL">
+    ${limb(74,82,55,100,6,C.body)}
+    ${limb(55,100,42,108,6,C.body)}
+  </g>
+  ${label(80,122,'CORE · TRANSVERSO')}
+  ${label(80,132,'Dead Bug',C.textDim,7)}
+`);
+
+// 23. PLANCHA LATERAL
+ANIMS['plancha lateral'] = () => mkSVG(`
+  <style>
+    .pl-body{animation:plBreath 2.5s ease-in-out infinite alternate;}
+    .pl-arm{transform-origin:80px 68px;animation:plBreath 2.5s ease-in-out infinite alternate;}
+    @keyframes plBreath{from{transform:translateY(0);}to{transform:translateY(-4px);}}
+  </style>
+  <line x1="10" y1="102" x2="150" y2="102" stroke="${C.bench}" stroke-width="3"/>
+  <g class="pl-body">
+    ${head(118,60)}
+    <!-- cuerpo lateral -->
+    <line x1="110" y1="64" x2="30" y2="88" stroke="${C.body}" stroke-width="14" stroke-linecap="round"/>
+    <!-- cuadrado lumbar resaltado -->
+    ${ellipseMuscle(78,76,18,7,C.muscle,0.85)}
+    <!-- oblicuos -->
+    ${ellipseMuscle(92,70,12,6,C.muscle,0.7)}
+    <!-- antebrazo apoyo -->
+    ${limb(98,68,88,102,6,C.body)}
+    <line x1="88" y1="102" x2="62" y2="102" stroke="${C.body}" stroke-width="6" stroke-linecap="round"/>
+    <!-- brazo libre arriba -->
+    ${limb(104,66,114,48,5,C.body)}
+    <!-- pies -->
+    ${limb(30,88,22,102,6,C.body)}
+    ${limb(36,90,30,102,6,C.body)}
+  </g>
+  ${label(80,122,'CUADRADO LUMBAR')}
+  ${label(80,132,'Plancha Lateral',C.textDim,7)}
+`);
+
+// 24. BIRD DOG
+ANIMS['bird-dog'] = () => mkSVG(`
+  <style>
+    .bd-armR{transform-origin:92px 50px;animation:bdArm 1.5s ease-in-out infinite alternate;}
+    .bd-legL{transform-origin:62px 72px;animation:bdLeg 1.5s ease-in-out infinite alternate;}
+    @keyframes bdArm{from{transform:rotate(-20deg);}to{transform:rotate(15deg);}}
+    @keyframes bdLeg{from{transform:rotate(20deg);}to{transform:rotate(-15deg);}}
+  </style>
+  <line x1="10" y1="105" x2="150" y2="105" stroke="${C.bench}" stroke-width="3"/>
+  <!-- a cuatro patas -->
+  ${head(112,36)}
+  <line x1="104" y1="40" x2="52" y2="55" stroke="${C.body}" stroke-width="14" stroke-linecap="round"/>
+  <!-- lumbares y glúteos resaltados -->
+  ${ellipseMuscle(72,52,16,7,C.muscle,0.85)}
+  ${ellipseMuscle(55,60,10,6,C.muscle,0.7)}
+  <!-- brazo izq apoyo abajo -->
+  ${limb(100,42,98,75,5,C.body)}
+  <!-- brazo der extendido animado -->
+  <g class="bd-armR">
+    ${limb(92,44,118,32,5,C.body)}
+  </g>
+  <!-- pierna der apoyo abajo -->
+  ${limb(62,58,64,78,6,C.body)}
+  ${limb(64,78,68,90,6,C.body)}
+  <!-- pierna izq extendida animada -->
+  <g class="bd-legL">
+    ${limb(62,62,38,75,6,C.body)}
+    ${limb(38,75,28,88,6,C.body)}
+  </g>
+  ${label(80,122,'LUMBARES · GLÚTEO')}
+  ${label(80,132,'Bird-Dog',C.textDim,7)}
+`);
+
+// 25. PUENTE DE GLUTEOS
+ANIMS['puente gluteos'] = () => mkSVG(`
+  <style>
+    .pg-hips{animation:pgUp 1.3s ease-in-out infinite alternate;}
+    @keyframes pgUp{from{transform:translateY(0);}to{transform:translateY(-14px);}}
+  </style>
+  <line x1="10" y1="108" x2="150" y2="108" stroke="${C.bench}" stroke-width="3"/>
+  <!-- cabeza en suelo -->
+  ${head(118,92)}
+  <!-- hombros/espalda alta en suelo -->
+  <line x1="110" y1="96" x2="72" y2="100" stroke="${C.body}" stroke-width="12" stroke-linecap="round"/>
+  <!-- brazos laterales -->
+  ${limb(100,100,88,108,5,C.body)}
+  ${limb(82,100,70,108,5,C.body)}
+  <!-- caderas animadas -->
+  <g class="pg-hips">
+    ${ellipseMuscle(62,80,14,10,C.muscle,0.9)}
+    <ellipse cx="62" cy="82" rx="18" ry="12" fill="${C.body}"/>
+    ${ellipseMuscle(62,82,16,10,C.muscle,0.85)}
+    <!-- muslos -->
+    ${limb(52,88,38,108,8,C.body)}
+    ${limb(72,88,78,108,8,C.body)}
+    <!-- rodillas/tibias -->
+    ${limb(38,108,38,108,8,C.body)}
+    ${limb(78,108,78,108,8,C.body)}
+  </g>
+  ${label(80,122,'GLÚTEO · ISQUIOS')}
+  ${label(80,132,'Puente de Glúteos',C.textDim,7)}
+`);
+
+// ── LOOKUP ────────────────────────────────────────────────────
+function getAnim(name) {
+  const n = name.toLowerCase().replace(/🔥\s*/,'');
+  const map = [
+    ['calentamiento', ANIMS['calentamiento']],
+    ['press militar', ANIMS['press militar']],
+    ['press arnold', ANIMS['press arnold']],
+    ['elevaciones laterales', ANIMS['elevaciones laterales']],
+    ['elevaciones frontales', ANIMS['elevaciones frontales']],
+    ['face pulls', ANIMS['face pulls']],
+    ['press banca inclinado', ANIMS['press banca inclinado']],
+    ['press banca plano', ANIMS['press banca plano']],
+    ['aperturas', ANIMS['aperturas']],
+    ['fondos', ANIMS['fondos']],
+    ['extensiones tríceps', ANIMS['extensiones triceps']],
+    ['extensiones triceps', ANIMS['extensiones triceps']],
+    ['press francés', ANIMS['press frances']],
+    ['press frances', ANIMS['press frances']],
+    ['jalones', ANIMS['jalones']],
+    ['remo en máquina', ANIMS['remo maquina']],
+    ['remo en polea', ANIMS['remo maquina']],
+    ['remo unilateral', ANIMS['remo unilateral']],
+    ['pull-over', ANIMS['pull-over']],
+    ['curl bíceps', ANIMS['curl biceps']],
+    ['curl martillo', ANIMS['curl martillo']],
+    ['curl concentrado', ANIMS['curl concentrado']],
+    ['curl en banco scott', ANIMS['curl banco scott']],
+    ['curl en banco', ANIMS['curl banco scott']],
+    ['plancha frontal', ANIMS['plancha frontal']],
+    ['dead bug', ANIMS['dead bug']],
+    ['plancha lateral', ANIMS['plancha lateral']],
+    ['bird-dog', ANIMS['bird-dog']],
+    ['puente de glúteos', ANIMS['puente gluteos']],
+    ['puente de gluteos', ANIMS['puente gluteos']],
+    ['superman', ANIMS['plancha frontal']],
+    ['pájaro', ANIMS['face pulls']],
+    ['peck deck', ANIMS['face pulls']],
+    ['superserie', ANIMS['elevaciones laterales']],
+  ];
+  for (const [key, fn] of map) {
+    if (n.includes(key)) return fn();
+  }
+  // Fallback genérico
+  return mkSVG(`
+    ${head(80,30)}${torso(68,38,24,28)}
+    ${ellipseMuscle(80,50,18,12)}
+    ${limb(72,44,52,60,5,C.body)}${limb(88,44,108,60,5,C.body)}
+    ${limb(74,66,68,95,6,C.body)}${limb(86,66,92,95,6,C.body)}
+    ${label(80,122,'EJERCICIO',C.textDim,7)}
+  `);
+}
+
+// ═══════════════════════════════════════════════════════════════
+// TRAINING DATA
+// ═══════════════════════════════════════════════════════════════
+const DAYS = [
+  { name:'LUNES', type:'PUSH A', color:'#FF6B35', subtitle:'Hombros (Prioridad) + Pecho + Tríceps', muscles:'Deltoides · Pectoral · Tríceps',
+    exercises:[
+      {n:null,name:'🔥 Calentamiento',type:'warm',sets:null,reps:null,rest:null,note:'Rotaciones de hombro con banda (2×15) + círculos de brazo + press barra vacía (2×10). 5-8 min.'},
+      {n:1,name:'Press militar mancuernas sentado',type:'compound',sets:'4',reps:'8-10',rest:'2-3 min',note:'Espalda apoyada en banco 90°. Lumbar pegada al respaldo SIEMPRE. No arquear.'},
+      {n:2,name:'Elevaciones laterales mancuernas',type:'isolation',sets:'4',reps:'12-15',rest:'60-90 seg',note:'Ligera inclinación adelante. Excéntrica controlada 3 segundos.'},
+      {n:3,name:'Elevaciones frontales alternas',type:'isolation',sets:'3',reps:'12 c/lado',rest:'60 seg',note:'Pulgar arriba. No subir por encima del hombro. Sin inercia.'},
+      {n:4,name:'Face pulls con polea',type:'isolation',sets:'4',reps:'15-20',rest:'60 seg',note:'★ Deltoides posterior + salud manguito. Polea a altura de cara. Codos bien separados.'},
+      {n:5,name:'Press banca inclinado mancuernas',type:'compound',sets:'3',reps:'10-12',rest:'90 seg',note:'Inclinación 30-45°. Activa porción clavicular del pectoral.'},
+      {n:6,name:'Fondos en paralelas asistidos',type:'compound',sets:'3',reps:'10-12',rest:'90 seg',note:'Si hay dolor de hombro: sustituir por extensiones tríceps.'},
+      {n:7,name:'Extensiones tríceps polea alta',type:'isolation',sets:'3',reps:'12-15',rest:'60 seg',note:'Cuerda o barra recta. Codos fijos pegados a los costados.'},
+    ]},
+  { name:'MARTES', type:'PULL A', color:'#00D4AA', subtitle:'Espalda + Bíceps + Core Fase 1', muscles:'Dorsal · Trapecio · Bíceps · Core',
+    exercises:[
+      {n:null,name:'🔥 Calentamiento',type:'warm',sets:null,reps:null,rest:null,note:'Rotaciones torácicas en suelo (2×10) + cat-cow (2×10) + jalones con banda (2×15).'},
+      {n:1,name:'Jalones al pecho polea',type:'compound',sets:'4',reps:'10-12',rest:'90 seg',note:'Agarre prono ancho. Pecho sale hacia la barra. Retracción escapular completa.'},
+      {n:2,name:'Remo en máquina / cable sentado',type:'compound',sets:'4',reps:'10-12',rest:'90 seg',note:'Mejor que remo libre (protege lumbares). Omóplatos juntos al final.'},
+      {n:3,name:'Jalones en polea agarre neutro',type:'isolation',sets:'3',reps:'12-15',rest:'60 seg',note:'Agarre paralelo. Menos tensión en manguito rotador.'},
+      {n:4,name:'Curl bíceps mancuernas alterno',type:'isolation',sets:'3',reps:'12 c/lado',rest:'60 seg',note:'Supinación de muñeca al subir. No balancear el torso.'},
+      {n:5,name:'Curl martillo en polea baja',type:'isolation',sets:'3',reps:'12-15',rest:'60 seg',note:'Trabaja braquial y braquiorradial.'},
+      {n:6,name:'Plancha frontal',type:'core',sets:'3',reps:'30-45 seg',rest:'60 seg',note:'FASE 1: Antiextensión. Pelvis en retroversión. Lumbar no se hunde.'},
+      {n:7,name:'Dead Bug',type:'core',sets:'3',reps:'8 c/lado',rest:'60 seg',note:'Lumbar PEGADA al suelo siempre. Muy lento y controlado.'},
+    ]},
+  { name:'MIÉRCOLES', type:'PUSH B', color:'#FF6B35', subtitle:'Hombros MAX + Tríceps (Prioridad) + Pecho', muscles:'Deltoides (3 haces) · Tríceps · Pectoral',
+    exercises:[
+      {n:null,name:'🔥 Calentamiento',type:'warm',sets:null,reps:null,rest:null,note:'Pendulum swings (2×15) + rotaciones externas con banda (2×15) + activación manguito.'},
+      {n:1,name:'Press Arnold mancuernas sentado',type:'compound',sets:'4',reps:'10-12',rest:'2 min',note:'El más completo para hombro. Trabaja los 3 haces. Espalda SIEMPRE apoyada.'},
+      {n:2,name:'Elevaciones laterales en polea baja',type:'isolation',sets:'4',reps:'15-20',rest:'60 seg',note:'Mayor tensión constante que mancuernas. Superioridad mecánica demostrada.'},
+      {n:3,name:'Pájaro / Peck deck inverso',type:'isolation',sets:'4',reps:'15',rest:'60 seg',note:'Deltoides posterior. Alt: mancuernas en banco inclinado prono.'},
+      {n:4,name:'Press francés con barra EZ',type:'compound',sets:'4',reps:'10-12',rest:'90 seg',note:'★ Ejercicio rey para cabeza larga del tríceps. Codos al techo.'},
+      {n:5,name:'Fondos en banco entre sillas',type:'isolation',sets:'3',reps:'12-15',rest:'60 seg',note:'Pies en el suelo. Foco total en tríceps. Codos no se abren.'},
+      {n:6,name:'Press banca plano mancuernas',type:'compound',sets:'3',reps:'10-12',rest:'90 seg',note:'Mantenimiento de pecho. Rango completo.'},
+      {n:7,name:'Aperturas en polea cruzada',type:'isolation',sets:'3',reps:'15',rest:'60 seg',note:'Pecho bajo. Giro de muñecas al finalizar.'},
+    ]},
+  { name:'JUEVES', type:'PULL B', color:'#00D4AA', subtitle:'Espalda (Prioridad) + Bíceps + Core Fase 2', muscles:'Trapecio · Romboides · Dorsal · Core lateral',
+    exercises:[
+      {n:null,name:'🔥 Calentamiento',type:'warm',sets:null,reps:null,rest:null,note:'Movilidad torácica sobre foam roller (2 min) + activación escapular con banda.'},
+      {n:1,name:'Remo en polea baja agarre ancho',type:'compound',sets:'4',reps:'10-12',rest:'90 seg',note:'Trapecio medio y romboides. Retracción escapular completa.'},
+      {n:2,name:'Remo unilateral mancuerna en banco',type:'compound',sets:'4',reps:'10-12 c/lado',rest:'60 seg',note:'Apoyo rodilla + mano en banco. Sin rotación de cadera.'},
+      {n:3,name:'Pull-over mancuerna tumbado',type:'isolation',sets:'3',reps:'15',rest:'60 seg',note:'Dorsal en posición alargada. Sin carga axial lumbar.'},
+      {n:4,name:'Curl concentrado mancuerna',type:'isolation',sets:'3',reps:'12 c/lado',rest:'60 seg',note:'Codo en cara interna de rodilla. Máxima contracción.'},
+      {n:5,name:'Curl en banco Scott / polea',type:'isolation',sets:'3',reps:'12-15',rest:'60 seg',note:'Aísla perfectamente el bíceps. Excéntrica 3 seg.'},
+      {n:6,name:'Plancha lateral',type:'core',sets:'3',reps:'25-35 seg c/lado',rest:'60 seg',note:'FASE 2: Antiflexión lateral. Cuadrado lumbar. Clave para escoliosis.'},
+      {n:7,name:'Bird-Dog',type:'core',sets:'3',reps:'10 c/lado',rest:'60 seg',note:'Extensión lumbar controlada. Columna neutral.'},
+    ]},
+  { name:'VIERNES', type:'FULL UPPER (opc.)', color:'#7C5CFC', subtitle:'Hombros + Pecho + Espalda + Brazos', muscles:'Todos los grupos del tren superior',
+    exercises:[
+      {n:null,name:'🔥 Calentamiento',type:'warm',sets:null,reps:null,rest:null,note:'5 min bici + movilidad hombros + activación escapular.'},
+      {n:1,name:'Superserie: Elevaciones laterales + Face pulls',type:'compound',sets:'4',reps:'12+15',rest:'90 seg',note:'Sin descanso entre los dos ejercicios. Activa todo el deltoides.'},
+      {n:2,name:'Press banca inclinado mancuernas',type:'compound',sets:'3',reps:'10-12',rest:'90 seg',note:'Mantenimiento de pecho.'},
+      {n:3,name:'Jalones en polea agarre neutro',type:'compound',sets:'3',reps:'12',rest:'90 seg',note:'Dorsal inferior. Agarre paralelo estrecho.'},
+      {n:4,name:'Superserie: Curl bíceps + Extensiones tríceps',type:'isolation',sets:'3',reps:'12+12',rest:'60 seg',note:'Superserie antagonista. Máxima congestión en brazos.'},
+      {n:5,name:'Press Arnold mancuernas sentado',type:'isolation',sets:'3',reps:'15-20',rest:'60 seg',note:'Carga menor que miércoles. Calidad sobre peso.'},
+      {n:6,name:'Plancha frontal + Dead Bug',type:'core',sets:'2',reps:'30seg+8/lado',rest:'60 seg',note:'Mantenimiento del core semanal.'},
+    ]},
+];
+
+const LUMBAR = {
+  phase1:[
+    {name:'Plancha frontal',detail:'3 × 30-45 seg | Pelvis en retroversión. Lumbar sin hundirse.'},
+    {name:'Dead Bug',detail:'3 × 8 reps/lado | Lumbar PEGADA al suelo. Muy lento.'},
+    {name:'Puente de glúteos',detail:'3 × 15 reps | Activa glúteo + isquios → descarga la lumbar.'},
+    {name:'Plancha lateral',detail:'3 × 25 seg · Cuadrado lumbar · Respiración diafragmática 5min/día.'},
+  ],
+  phase2:[
+    {name:'Bird-Dog',detail:'3 × 10/lado | Extensión posterior SIN hiperlordosis.'},
+    {name:'Plancha lateral',detail:'3 × 25-35 seg/lado | Cuadrado lumbar. Clave escoliosis.'},
+    {name:'Plancha frontal',detail:'3 × 10 (hold 3 seg) | Progresión de la Fase 1.'},
+    {name:'Remo en máquina / cable sentado',detail:'3 × 12-15 | Extensores lumbares de forma segura.'},
+  ]
+};
+
+// ═══════════════════════════════════════════════════════════════
+// STATE & UI
+// ═══════════════════════════════════════════════════════════════
+let weightData = JSON.parse(localStorage.getItem('wt26')||'[]');
+let wChart, pChart, mChart;
+const SW=83, SD='2026-03-29';
+
+function showTab(id,el){
+  document.querySelectorAll('.section').forEach(s=>s.classList.remove('active'));
+  document.querySelectorAll('.nav-tab').forEach(t=>t.classList.remove('active'));
+  document.getElementById('tab-'+id).classList.add('active');
+  el.classList.add('active');
+  if(id==='tracker')setTimeout(renderTracker,50);
+  if(id==='nutricion')setTimeout(renderMacroChart,50);
+}
+
+function renderPlan(){
+  const g=document.getElementById('days-grid');
+  DAYS.forEach(day=>{
+    const c=document.createElement('div');
+    c.className='day-card';
+    c.innerHTML=`
+      <div class="day-header" style="background:linear-gradient(135deg,${day.color}33,${day.color}11);">
+        <div><div class="day-name" style="color:${day.color}">${day.name}</div><div class="day-type">${day.type}</div></div>
+        <div class="day-badge" style="color:${day.color};border:1px solid ${day.color}44;">${day.exercises.filter(e=>e.n!==null).length} ej.</div>
+      </div>
+      <div class="day-preview">
+        <div style="margin-bottom:3px;font-weight:600;color:var(--text);font-size:12px;">${day.subtitle}</div>
+        <div style="font-size:10px;">${day.muscles}</div>
+        <div style="margin-top:7px;color:${day.color};font-size:11px;font-weight:600;">Ver con animaciones →</div>
+      </div>`;
+    c.addEventListener('click',()=>openModal(day));
+    g.appendChild(c);
+  });
+}
+
+const BC={compound:'badge-compound',isolation:'badge-isolation',core:'badge-core',warm:'badge-warm'};
+const TL={compound:'Compuesto',isolation:'Aislado',core:'Core',warm:'Warm-up'};
+
+function openModal(day){
+  document.getElementById('modal-title').textContent=`${day.name} — ${day.type}`;
+  document.getElementById('modal-title').style.color=day.color;
+  document.getElementById('modal-sub').textContent=day.subtitle;
+  const con=document.getElementById('modal-exercises');
+  con.innerHTML='';
+  day.exercises.forEach(ex=>{
+    const card=document.createElement('div');
+    card.className='ex-card';
+    const ab=document.createElement('div');
+    ab.className='anim-box';
+    ab.innerHTML=getAnim(ex.name);
+    card.innerHTML=`<div>
+      <div style="display:flex;gap:7px;align-items:center;flex-wrap:wrap;margin-bottom:4px;">
+        <span class="ex-num" style="color:${day.color}">${ex.n!==null?ex.n:'🔥'}</span>
+        <span class="ex-name">${ex.name}</span>
+        <span class="badge ${BC[ex.type]||''}">${TL[ex.type]||''}</span>
+      </div>
+      <div class="ex-chips">
+        ${ex.sets?`<span class="chip chip-s">📋 ${ex.sets} series</span>`:''}
+        ${ex.reps?`<span class="chip chip-r">🔁 ${ex.reps} reps</span>`:''}
+        ${ex.rest?`<span class="chip chip-rest">⏱ ${ex.rest}</span>`:''}
+      </div>
+      <div class="ex-note">${ex.note}</div>
+    </div>`;
+    card.insertBefore(ab,card.firstChild);
+    con.appendChild(card);
+  });
+  document.getElementById('modal').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+
+function closeModal(){
+  document.getElementById('modal').classList.remove('open');
+  document.body.style.overflow='';
+}
+function handleModalClick(e){
+  if(e.target===document.getElementById('modal'))closeModal();
+}
+
+function renderLumbar(){
+  ['phase1','phase2'].forEach(ph=>{
+    const con=document.getElementById(ph+'-ex');
+    LUMBAR[ph].forEach(ex=>{
+      const div=document.createElement('div');
+      div.className='phase-ex';
+      const ab=document.createElement('div');
+      ab.className='phase-anim';
+      ab.innerHTML=getAnim(ex.name);
+      div.innerHTML=`<div>
+        <div style="font-weight:700;color:var(--text);margin-bottom:2px;font-size:13px;">${ex.name}</div>
+        <div style="font-size:11px;color:var(--muted);line-height:1.5;">${ex.detail}</div>
+      </div>`;
+      div.insertBefore(ab,div.firstChild);
+      con.appendChild(div);
+    });
+  });
+}
+
+function showPhase(n,el){
+  document.getElementById('phase1-content').style.display=n===1?'block':'none';
+  document.getElementById('phase2-content').style.display=n===2?'block':'none';
+  document.querySelectorAll('.phase-btn').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function idealW(ds){
+  const gw=parseFloat(document.getElementById('inp-goal').value)||76;
+  const gd=document.getElementById('inp-goal-date').value||'2026-06-30';
+  const t=Math.max(0,Math.min(1,(new Date(ds)-new Date(SD))/(new Date(gd)-new Date(SD))));
+  return +(SW-(SW-gw)*t).toFixed(2);
+}
+function addWeight(){
+  const w=parseFloat(document.getElementById('inp-weight').value);
+  const d=document.getElementById('inp-date').value;
+  if(!w||!d||w<40||w>200){alert('Introduce un peso y fecha válidos.');return;}
+  weightData=weightData.filter(e=>e.date!==d);
+  weightData.push({date:d,weight:w});
+  weightData.sort((a,b)=>a.date.localeCompare(b.date));
+  localStorage.setItem('wt26',JSON.stringify(weightData));
+  document.getElementById('inp-weight').value='';
+  renderTracker();updateDashProgress();
+}
+function clearWeights(){
+  if(confirm('¿Borrar todos los registros?')){weightData=[];localStorage.setItem('wt26','[]');renderTracker();updateDashProgress();}
+}
+function renderTracker(){
+  const b=document.getElementById('status-banner');
+  if(!weightData.length){b.className='status-banner status-neutral';b.innerHTML='<span>📊</span><span>Registra tu peso para ver el análisis</span>';}
+  else{
+    const lat=weightData[weightData.length-1],id=idealW(lat.date),df=+(lat.weight-id).toFixed(1);
+    if(df<=0.3){b.className='status-banner status-ok';b.innerHTML=`<span>✅</span><span><strong>¡En objetivo!</strong> ${lat.weight}kg está en línea con el ideal ${id}kg.</span>`;}
+    else if(df<=1){b.className='status-banner status-warn';b.innerHTML=`<span>⚠️</span><span><strong>Leve retraso.</strong> ${lat.weight}kg vs ideal ${id}kg.</span>`;}
+    else{b.className='status-banner status-danger';b.innerHTML=`<span>🔴</span><span><strong>Desviación.</strong> ${lat.weight}kg está ${df}kg sobre el ideal ${id}kg.</span>`;}
+  }
+  const tb=document.getElementById('weight-tbody');
+  tb.innerHTML='';
+  document.getElementById('no-data-msg').style.display=weightData.length?'none':'block';
+  weightData.slice().reverse().forEach((e,i,a)=>{
+    const prev=a[i+1],chg=prev?+(e.weight-prev.weight).toFixed(2):null;
+    const id2=idealW(e.date),df2=+(e.weight-id2).toFixed(2);
+    const tr=document.createElement('tr');
+    tr.innerHTML=`<td>${e.date}</td><td style="font-weight:700;">${e.weight}kg</td>
+    <td style="color:${chg===null?'var(--muted)':chg<0?'var(--success)':'var(--danger)'}">${chg===null?'—':chg>0?'+'+chg:chg}kg</td>
+    <td style="color:${df2<=0.3?'var(--success)':df2<=1?'var(--warn)':'var(--danger)'}">${df2>0?'+':''}${df2}kg</td>
+    <td>${df2<=0.3?'✅':df2<=1?'⚠️':'🔴'}</td>`;
+    tb.appendChild(tr);
+  });
+  renderWChart();renderPChart();
+}
+function renderWChart(){
+  const ctx=document.getElementById('weightChart').getContext('2d');
+  if(wChart)wChart.destroy();
+  const gd=document.getElementById('inp-goal-date').value||'2026-06-30';
+  const ip=[];
+  for(let d=new Date(SD);d<=new Date(gd);d.setDate(d.getDate()+7))
+    ip.push({x:d.toISOString().split('T')[0],y:idealW(d.toISOString().split('T')[0])});
+  wChart=new Chart(ctx,{type:'line',data:{datasets:[
+    {label:'Peso real',data:weightData.map(e=>({x:e.date,y:e.weight})),borderColor:'#00D4AA',backgroundColor:'rgba(0,212,170,.1)',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#00D4AA',tension:.3,fill:false},
+    {label:'Línea ideal',data:ip,borderColor:'#FF6B35',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8892A4',font:{size:10}}}},
+    scales:{x:{type:'time',time:{unit:'week'},ticks:{color:'#8892A4',maxTicksLimit:5},grid:{color:'#252D45'}},
+            y:{ticks:{color:'#8892A4',callback:v=>v+'kg'},grid:{color:'#252D45'}}}}});
+}
+function renderPChart(){
+  const ctx=document.getElementById('projChart').getContext('2d');
+  if(pChart)pChart.destroy();
+  const gw=parseFloat(document.getElementById('inp-goal').value)||76;
+  const gd=document.getElementById('inp-goal-date').value||'2026-06-30';
+  if(weightData.length<2){pChart=new Chart(ctx,{type:'bar',data:{labels:['Añade más datos'],datasets:[{data:[0],backgroundColor:'transparent'}]},options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8892A4'}},y:{display:false}}}});return;}
+  const pts=weightData.map(e=>({x:new Date(e.date).getTime(),y:e.weight}));
+  const n=pts.length,mx=pts.reduce((s,p)=>s+p.x,0)/n,my=pts.reduce((s,p)=>s+p.y,0)/n;
+  const sl=pts.reduce((s,p)=>s+(p.x-mx)*(p.y-my),0)/pts.reduce((s,p)=>s+(p.x-mx)**2,0);
+  const ic=my-sl*mx;
+  const pp=[],lat=new Date(weightData[weightData.length-1].date);
+  for(let d=new Date(lat);d<=new Date(gd);d.setDate(d.getDate()+7))
+    pp.push({x:d.toISOString().split('T')[0],y:+(ic+sl*d.getTime()).toFixed(2)});
+  pChart=new Chart(ctx,{type:'line',data:{datasets:[
+    {label:'Proyección',data:pp,borderColor:'#7C5CFC',borderWidth:2,borderDash:[8,4],pointRadius:0,fill:{target:'origin',above:'rgba(124,92,252,.05)'}},
+    {label:`Objetivo (${gw}kg)`,data:[{x:weightData[0].date,y:gw},{x:gd,y:gw}],borderColor:'#22C55E',borderWidth:1.5,borderDash:[4,4],pointRadius:0,fill:false}
+  ]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8892A4',font:{size:10}}}},
+    scales:{x:{type:'time',time:{unit:'week'},ticks:{color:'#8892A4',maxTicksLimit:5},grid:{color:'#252D45'}},
+            y:{ticks:{color:'#8892A4',callback:v=>v+'kg'},grid:{color:'#252D45'}}}}});
+}
+function renderMacroChart(){
+  const ctx=document.getElementById('macroChart').getContext('2d');
+  if(mChart)mChart.destroy();
+  mChart=new Chart(ctx,{type:'doughnut',data:{labels:['Proteína 35%','Hidratos 40%','Grasas 25%'],datasets:[{data:[800,920,575],backgroundColor:['#00D4AA','#7C5CFC','#FF6B35'],borderColor:'#0A0E1A',borderWidth:3}]},
+    options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:'#8892A4',font:{size:10},padding:8}},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw} kcal`}}}}});
+}
+function updateDashProgress(){
+  if(!weightData.length)return;
+  const lat=weightData[weightData.length-1],gw=parseFloat(document.getElementById('inp-goal').value)||76;
+  const pct=Math.max(0,Math.min(100,Math.round((SW-lat.weight)/(SW-gw)*100)));
+  document.getElementById('dash-bar').style.width=pct+'%';
+  document.getElementById('dash-pct').textContent=pct+'%';
+  document.getElementById('dash-txt').textContent=`${lat.weight}kg · faltan ${(lat.weight-gw).toFixed(1)}kg`;
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('inp-date').value=new Date().toISOString().split('T')[0];
+  renderPlan();
+  renderLumbar();
+  updateDashProgress();
+});
+</script>
+</body>
+</html>
