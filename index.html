@@ -1,0 +1,909 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>FitPlan 2026</title>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/chartjs-adapter-date-fns/3.0.0/chartjs-adapter-date-fns.bundle.min.js"></script>
+<style>
+@import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:wght@400;500;700&display=swap');
+:root{--dark:#0A0E1A;--mid:#141929;--card:#1A2035;--a:#00D4AA;--a2:#FF6B35;--a3:#7C5CFC;--tx:#E8EDF5;--mu:#8892A4;--bd:#252D45;--ok:#22C55E;--wn:#F59E0B;--dn:#EF4444;}
+*{margin:0;padding:0;box-sizing:border-box;-webkit-tap-highlight-color:transparent;}
+body{font-family:'DM Sans',sans-serif;background:var(--dark);color:var(--tx);min-height:100vh;}
+nav{background:var(--mid);border-bottom:1px solid var(--bd);padding:0 14px;display:flex;align-items:center;position:sticky;top:0;z-index:100;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+.nl{font-family:'Bebas Neue',sans-serif;font-size:20px;color:var(--a);letter-spacing:2px;padding:13px 14px 13px 0;border-right:1px solid var(--bd);margin-right:4px;white-space:nowrap;}
+.nt{padding:13px 11px;cursor:pointer;color:var(--mu);font-size:12px;font-weight:500;border-bottom:2px solid transparent;white-space:nowrap;}
+.nt.on{color:var(--a);border-bottom-color:var(--a);}
+.sec{display:none;padding:16px;max-width:1100px;margin:0 auto;}
+.sec.on{display:block;}
+.stit{font-family:'Bebas Neue',sans-serif;font-size:23px;letter-spacing:2px;margin-bottom:13px;display:flex;align-items:center;gap:10px;}
+.stit::after{content:'';flex:1;height:1px;background:var(--bd);}
+.hero{background:linear-gradient(135deg,var(--card),#0F1628);border:1px solid var(--bd);border-radius:16px;padding:18px;margin-bottom:13px;}
+.ht{font-family:'Bebas Neue',sans-serif;font-size:34px;color:var(--a);letter-spacing:3px;line-height:1;}
+.hs{font-size:12px;color:var(--mu);margin-top:3px;}
+.sr{display:flex;gap:7px;margin-top:13px;flex-wrap:wrap;}
+.sp{background:rgba(255,255,255,.05);border:1px solid var(--bd);border-radius:10px;padding:5px 10px;font-size:11px;}
+.sp span{color:var(--a);font-weight:700;}
+.g2{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:11px;}
+.g3{display:grid;grid-template-columns:1fr 1fr 1fr;gap:11px;margin-bottom:11px;}
+@media(max-width:640px){.g2,.g3,.dg{grid-template-columns:1fr!important;}}
+.card{background:var(--card);border:1px solid var(--bd);border-radius:13px;padding:14px;}
+.ct{font-family:'Bebas Neue',sans-serif;font-size:15px;letter-spacing:1.5px;color:var(--a);margin-bottom:8px;}
+.dg{display:grid;grid-template-columns:1fr 1fr;gap:11px;margin-bottom:13px;}
+.dc{background:var(--card);border:1px solid var(--bd);border-radius:13px;overflow:hidden;cursor:pointer;transition:transform .18s,border-color .18s;}
+.dc:hover{transform:translateY(-2px);border-color:var(--a);}
+.dh{padding:11px 14px;display:flex;justify-content:space-between;align-items:center;}
+.dn2{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:2px;}
+.dt{font-size:10px;color:rgba(255,255,255,.65);font-weight:500;margin-top:1px;}
+.db{background:rgba(0,0,0,.22);border-radius:20px;padding:2px 8px;font-size:10px;font-weight:600;}
+.dp{padding:8px 14px 11px;font-size:11px;color:var(--mu);}
+/* MODAL */
+.mo{display:none;position:fixed;inset:0;background:rgba(0,0,0,.92);z-index:200;overflow-y:auto;-webkit-overflow-scrolling:touch;padding:8px;}
+.mo.on{display:block;}
+.mb{background:var(--mid);border:1px solid var(--bd);border-radius:18px;width:100%;max-width:880px;margin:0 auto;}
+.mh{padding:14px 18px 10px;border-bottom:1px solid var(--bd);display:flex;justify-content:space-between;align-items:flex-start;gap:10px;}
+.mc{width:30px;height:30px;min-width:30px;background:var(--bd);border:none;border-radius:50%;color:var(--mu);font-size:14px;cursor:pointer;display:flex;align-items:center;justify-content:center;}
+.mbody{padding:12px 18px;}
+/* Exercise row */
+.er{display:grid;grid-template-columns:200px 1fr;gap:14px;padding:14px 0;border-bottom:1px solid var(--bd);align-items:start;}
+.er:last-child{border-bottom:none;}
+@media(max-width:520px){.er{grid-template-columns:130px 1fr;gap:9px;}}
+.ea{width:200px;height:168px;background:#080d16;border-radius:10px;border:1px solid #1a2540;overflow:hidden;flex-shrink:0;}
+.ea svg{width:100%;height:100%;display:block;}
+@media(max-width:520px){.ea{width:130px;height:110px;}}
+.enum{font-family:'Bebas Neue',sans-serif;font-size:22px;line-height:1;}
+.enm{font-weight:700;font-size:13px;line-height:1.3;}
+.bge{display:inline-block;padding:2px 7px;border-radius:20px;font-size:9px;font-weight:600;}
+.bc{background:rgba(0,212,170,.15);color:var(--a);}
+.bi{background:rgba(124,92,252,.15);color:var(--a3);}
+.bco{background:rgba(255,107,53,.15);color:var(--a2);}
+.bw{background:rgba(245,158,11,.15);color:var(--wn);}
+.chips{display:flex;gap:6px;flex-wrap:wrap;margin:5px 0;}
+.ch{background:var(--dark);border-radius:7px;padding:3px 9px;font-size:11px;font-weight:600;}
+.cs{color:var(--a);}.cr{color:var(--a3);}.cx{color:var(--mu);}
+.en{font-size:11px;color:var(--mu);line-height:1.55;}
+/* tracker */
+.tc{display:flex;gap:8px;margin-bottom:13px;flex-wrap:wrap;align-items:flex-end;}
+.ig{display:flex;flex-direction:column;gap:3px;}
+.il{font-size:11px;color:var(--mu);font-weight:500;}
+.inp{background:var(--dark);border:1px solid var(--bd);border-radius:10px;color:var(--tx);font-family:'DM Sans',sans-serif;font-size:14px;padding:8px 11px;width:124px;outline:none;-webkit-appearance:none;}
+.inp:focus{border-color:var(--a);}
+.btn{padding:8px 14px;border-radius:10px;border:none;font-family:'DM Sans',sans-serif;font-size:13px;font-weight:600;cursor:pointer;}
+.ba{background:var(--a);color:var(--dark);}
+.bd2{background:rgba(239,68,68,.2);color:var(--dn);border:1px solid rgba(239,68,68,.3);}
+.sb{border-radius:11px;padding:10px 14px;margin-bottom:12px;font-weight:500;font-size:12px;display:flex;align-items:center;gap:9px;}
+.sok{background:rgba(34,197,94,.1);border:1px solid rgba(34,197,94,.3);color:var(--ok);}
+.swn{background:rgba(245,158,11,.1);border:1px solid rgba(245,158,11,.3);color:var(--wn);}
+.sdn{background:rgba(239,68,68,.1);border:1px solid rgba(239,68,68,.3);color:var(--dn);}
+.snu{background:rgba(255,255,255,.04);border:1px solid var(--bd);color:var(--mu);}
+.wht{width:100%;border-collapse:collapse;font-size:12px;}
+.wht th{background:var(--dark);padding:7px 9px;text-align:left;color:var(--mu);font-size:10px;text-transform:uppercase;letter-spacing:1px;}
+.wht td{padding:8px 9px;border-bottom:1px solid var(--bd);}
+.cc{position:relative;height:215px;margin-bottom:6px;}
+.mb2{margin:4px 0;}
+.ml{display:flex;justify-content:space-between;font-size:11px;margin-bottom:2px;}
+.mr{height:7px;border-radius:4px;background:var(--dark);overflow:hidden;}
+.mf{height:100%;border-radius:4px;}
+.ph{display:flex;gap:7px;margin-bottom:10px;}
+.pb{padding:6px 14px;border-radius:8px;border:1px solid var(--bd);background:transparent;color:var(--mu);font-family:'DM Sans',sans-serif;font-size:11px;font-weight:600;cursor:pointer;}
+.pb.on{background:var(--a2);border-color:var(--a2);color:white;}
+.pe{display:flex;gap:10px;align-items:flex-start;padding:11px 0;border-bottom:1px solid var(--bd);}
+.pe:last-child{border-bottom:none;}
+.pa{width:108px;height:88px;background:#080d16;border-radius:9px;border:1px solid #1a2540;overflow:hidden;flex-shrink:0;}
+.pa svg{width:100%;height:100%;display:block;}
+</style>
+</head>
+<body>
+<nav>
+  <div class="nl">FITPLAN</div>
+  <div class="nt on" onclick="ST('dash',this)">🏠 Inicio</div>
+  <div class="nt" onclick="ST('plan',this)">💪 Plan</div>
+  <div class="nt" onclick="ST('peso',this)">⚖️ Peso</div>
+  <div class="nt" onclick="ST('nut',this)">🥗 Nutrición</div>
+  <div class="nt" onclick="ST('lum',this)">🦴 Lumbar</div>
+</nav>
+
+<!-- DASHBOARD -->
+<div class="sec on" id="tab-dash">
+  <div class="hero">
+    <div class="ht">TU PLAN 2026</div>
+    <div class="hs">Recomposición corporal · Hombros &amp; Tríceps · Protección lumbar</div>
+    <div class="sr">
+      <div class="sp">Peso <span>83 kg</span></div><div class="sp">Objetivo <span>76 kg</span></div>
+      <div class="sp">Grasa <span>18.5%</span></div><div class="sp">Masa magra <span>~67.7 kg</span></div>
+      <div class="sp">Calorías <span>~2.295 kcal</span></div><div class="sp">Proteína <span>200g/día</span></div>
+    </div>
+  </div>
+  <div class="g3">
+    <div class="card">
+      <div class="ct">📅 Semana</div>
+      <div style="font-size:12px;line-height:2.1;">
+        <div><span style="color:var(--a2);font-weight:700;">LUN</span> — Push A · Hombros + Pecho</div>
+        <div><span style="color:var(--a);font-weight:700;">MAR</span> — Pull A · Espalda + Bíceps</div>
+        <div><span style="color:var(--a2);font-weight:700;">MIÉ</span> — Push B · Hombros + Tríceps</div>
+        <div><span style="color:var(--a);font-weight:700;">JUE</span> — Pull B · Espalda + Core</div>
+        <div><span style="color:var(--a3);font-weight:700;">VIE</span> — Full Upper (opcional)</div>
+        <div><span style="color:var(--mu);font-weight:700;">SAB/DOM</span> — Descanso 🛌</div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">⚡ Frecuencia</div>
+      <div class="mb2"><div class="ml"><span>Hombros ★</span><span style="color:var(--a)">2×</span></div><div class="mr"><div class="mf" style="width:100%;background:var(--a)"></div></div></div>
+      <div class="mb2"><div class="ml"><span>Tríceps ★</span><span style="color:var(--a)">2×</span></div><div class="mr"><div class="mf" style="width:100%;background:var(--a)"></div></div></div>
+      <div class="mb2"><div class="ml"><span>Espalda</span><span style="color:var(--a3)">2×</span></div><div class="mr"><div class="mf" style="width:100%;background:var(--a3)"></div></div></div>
+      <div class="mb2"><div class="ml"><span>Pecho</span><span style="color:var(--mu)">2×</span></div><div class="mr"><div class="mf" style="width:75%;background:var(--mu)"></div></div></div>
+      <div class="mb2"><div class="ml"><span>Bíceps</span><span style="color:var(--mu)">2×</span></div><div class="mr"><div class="mf" style="width:75%;background:var(--mu)"></div></div></div>
+    </div>
+    <div class="card">
+      <div class="ct">🎯 Objetivo</div>
+      <div style="font-family:'Bebas Neue';font-size:40px;color:var(--a);line-height:1;">76<span style="font-size:17px">kg</span></div>
+      <div style="font-size:10px;color:var(--mu);margin-bottom:7px;">Junio 2026 · ~90 días</div>
+      <div class="mb2"><div class="ml"><span>Progreso</span><span id="dp">0%</span></div><div class="mr"><div class="mf" id="db3" style="width:0%;background:var(--a)"></div></div></div>
+      <div style="font-size:10px;color:var(--mu);margin-top:4px;" id="dt2">Registra tu peso para ver el progreso</div>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ct">⚠️ Consideraciones especiales</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;font-size:12px;">
+      <div style="background:rgba(239,68,68,.07);border:1px solid rgba(239,68,68,.2);border-radius:10px;padding:10px;"><b style="color:var(--dn)">🦴 Lumbares sensibles</b><br>Lordosis + escoliosis. Sin cargas axiales de pie. Protocolo progresivo de 2 fases.</div>
+      <div style="background:rgba(124,92,252,.07);border:1px solid rgba(124,92,252,.2);border-radius:10px;padding:10px;"><b style="color:var(--a3)">🦵 Sin trabajo de pierna</b><br>Solo cardio en cinta 3.5–5 km.</div>
+    </div>
+  </div>
+</div>
+
+<!-- PLAN -->
+<div class="sec" id="tab-plan">
+  <div class="stit">💪 Plan de entrenamiento</div>
+  <p style="color:var(--mu);font-size:12px;margin-bottom:12px;">Toca un día para ver los ejercicios con ilustraciones anatómicas de técnica.</p>
+  <div class="dg" id="dg"></div>
+</div>
+
+<!-- MODAL -->
+<div class="mo" id="modal" onclick="if(event.target===this)CM()">
+  <div class="mb">
+    <div class="mh">
+      <div>
+        <div id="mtit" style="font-family:'Bebas Neue';font-size:20px;letter-spacing:2px;"></div>
+        <div id="msub" style="font-size:11px;color:var(--mu);margin-top:1px;"></div>
+      </div>
+      <button class="mc" onclick="CM()">✕</button>
+    </div>
+    <div class="mbody">
+      <div style="margin-bottom:10px;background:var(--dark);border-radius:9px;padding:8px 11px;font-size:11px;color:var(--mu);">⏱ <b style="color:var(--tx)">60 min fuerza</b> + <b style="color:var(--tx)">30 min cardio</b> &nbsp;|&nbsp; 🏃 3.5–5 km en cinta</div>
+      <div style="margin-bottom:12px;background:#0d1828;border:1px solid #1e3050;border-radius:9px;padding:10px 12px;">
+        <div style="font-family:'Bebas Neue',sans-serif;font-size:13px;letter-spacing:1.5px;color:#00D4AA;margin-bottom:7px;">🏃 PROTOCOLO CARDIO — DESPUÉS DE FUERZA</div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:7px;font-size:11px;">
+          <div style="background:rgba(0,212,170,.06);border:1px solid rgba(0,212,170,.2);border-radius:8px;padding:8px;">
+            <b style="color:var(--tx);">Opción A — Constante</b><br>
+            <span style="color:var(--mu);">30 min a 5–6 km/h<br>Inclinación 1–2%<br>FC objetivo: 120–135 bpm</span>
+          </div>
+          <div style="background:rgba(255,107,53,.06);border:1px solid rgba(255,107,53,.2);border-radius:8px;padding:8px;">
+            <b style="color:var(--tx);">Opción B — Intervalos</b><br>
+            <span style="color:var(--mu);">5 min calentamiento 4 km/h<br>6× (2 min 6.5 km/h + 1 min 4 km/h)<br>5 min vuelta calma 3.5 km/h</span>
+          </div>
+        </div>
+        <div style="margin-top:7px;font-size:10px;color:var(--mu);">💡 Opción B quema ~15% más calorías · Alterna A y B cada semana para no adaptarte</div>
+      </div>
+      <div id="mex"></div>
+    </div>
+  </div>
+</div>
+
+<!-- PESO -->
+<div class="sec" id="tab-peso">
+  <div class="stit">⚖️ Seguimiento de peso</div>
+  <div class="tc">
+    <div class="ig"><div class="il">Peso (kg)</div><input class="inp" type="number" id="iw" step="0.1" placeholder="83.0" inputmode="decimal"></div>
+    <div class="ig"><div class="il">Fecha</div><input class="inp" type="date" id="id2"></div>
+    <div class="ig"><div class="il">Objetivo (kg)</div><input class="inp" type="number" id="ig2" step="0.1" value="76" inputmode="decimal"></div>
+    <div class="ig"><div class="il">Fecha objetivo</div><input class="inp" type="date" id="igd" value="2026-06-30"></div>
+    <div class="ig"><div class="il">&nbsp;</div><button class="btn ba" onclick="AW()">+ Añadir</button></div>
+    <div class="ig"><div class="il">&nbsp;</div><button class="btn bd2" onclick="CW()">🗑 Borrar</button></div>
+  </div>
+  <div id="sb2" class="sb snu"><span>📊</span><span>Registra tu peso para ver el análisis</span></div>
+  <div class="g2">
+    <div class="card"><div class="ct">📈 Progresión</div><div class="cc"><canvas id="wc"></canvas></div></div>
+    <div class="card"><div class="ct">🎯 Proyección</div><div class="cc"><canvas id="pc2"></canvas></div></div>
+  </div>
+  <div class="card">
+    <div class="ct">📋 Historial</div>
+    <div style="overflow-x:auto;">
+      <table class="wht"><thead><tr><th>Fecha</th><th>Peso</th><th>Cambio</th><th>vs Ideal</th><th>Estado</th></tr></thead><tbody id="wb"></tbody></table>
+      <div id="nd" style="text-align:center;padding:22px;color:var(--mu);font-size:12px;">No hay registros aún.</div>
+    </div>
+  </div>
+</div>
+
+<!-- NUTRICIÓN -->
+<div class="sec" id="tab-nut">
+  <div class="stit">🥗 Nutrición</div>
+  <div class="g3">
+    <div class="card" style="text-align:center;"><div style="font-size:10px;color:var(--mu);text-transform:uppercase;">Calorías objetivo</div><div style="font-family:'Bebas Neue';font-size:38px;color:var(--a);line-height:1.1;">2.295</div><div style="font-size:10px;color:var(--mu);">kcal/día (déficit -400)</div></div>
+    <div class="card" style="text-align:center;"><div style="font-size:10px;color:var(--mu);text-transform:uppercase;">TMB</div><div style="font-family:'Bebas Neue';font-size:38px;color:var(--a3);line-height:1.1;">1.740</div><div style="font-size:10px;color:var(--mu);">kcal en reposo</div></div>
+    <div class="card" style="text-align:center;"><div style="font-size:10px;color:var(--mu);text-transform:uppercase;">TDEE activo</div><div style="font-family:'Bebas Neue';font-size:38px;color:var(--a2);line-height:1.1;">2.695</div><div style="font-size:10px;color:var(--mu);">kcal con 4-5 días gym</div></div>
+  </div>
+  <div class="g2">
+    <div class="card">
+      <div class="ct">🔬 Macros</div>
+      <div class="cc" style="height:170px;"><canvas id="mc3"></canvas></div>
+      <div style="font-size:12px;margin-top:7px;">
+        <div class="mb2"><div class="ml"><span>🥩 Proteína</span><span style="color:var(--a)"><b>200g</b> — 35%</span></div><div class="mr" style="height:9px;"><div class="mf" style="width:35%;background:var(--a)"></div></div></div>
+        <div class="mb2"><div class="ml"><span>🍚 Hidratos</span><span style="color:var(--a3)"><b>230g</b> — 40%</span></div><div class="mr" style="height:9px;"><div class="mf" style="width:40%;background:var(--a3)"></div></div></div>
+        <div class="mb2"><div class="ml"><span>🫒 Grasas</span><span style="color:var(--a2)"><b>64g</b> — 25%</span></div><div class="mr" style="height:9px;"><div class="mf" style="width:25%;background:var(--a2)"></div></div></div>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">⏰ Timing</div>
+      <div style="font-size:12px;">
+        <div style="padding:8px 0;border-bottom:1px solid var(--bd);"><b style="color:var(--wn)">🌅 Pre-entreno (1-2h)</b><br><span style="color:var(--mu);">40-60g HC + 20-30g proteína · Arroz + pechuga</span></div>
+        <div style="padding:8px 0;border-bottom:1px solid var(--bd);"><b style="color:var(--a)">🏋️ Post-entreno</b><br><span style="color:var(--mu);">40g HC simples + 30-40g prot. · Whey + plátano</span></div>
+        <div style="padding:8px 0;border-bottom:1px solid var(--bd);"><b style="color:var(--a3)">🌙 Antes de dormir</b><br><span style="color:var(--mu);">20-30g caseína · Requesón 0%</span></div>
+        <div style="padding:8px 0;"><b style="color:var(--mu)">🍽️ Resto</b><br><span style="color:var(--mu);">2-3 comidas, cada 3-4 horas</span></div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- LUMBAR -->
+<div class="sec" id="tab-lum">
+  <div class="stit">🦴 Protocolo lumbar</div>
+  <div class="card" style="margin-bottom:12px;">
+    <div class="ct">❓ ¿Por qué has tenido dolor?</div>
+    <div style="font-size:12px;color:var(--mu);line-height:1.7;">Con <b style="color:var(--a2)">lordosis</b>, empezar con extensión lumbar directa genera compresión en las facetas → dolor. La solución: <b style="color:var(--a)">2 fases</b>. Primero antiextensión, luego extensión controlada.</div>
+  </div>
+  <div class="ph">
+    <button class="pb on" onclick="SP(1,this)">FASE 1 · Sem. 1-4</button>
+    <button class="pb" onclick="SP(2,this)">FASE 2 · Sem. 5-8</button>
+  </div>
+  <div class="card" id="p1"><div class="ct" style="color:var(--a);">✅ Antiextensión — base</div><div id="p1e"></div></div>
+  <div class="card" id="p2" style="display:none;"><div class="ct" style="color:var(--a2);">⚠️ Solo si Fase 1 sin dolor</div><div id="p2e"></div></div>
+  <div class="card" style="margin-top:12px;">
+    <div class="ct">🚨 Señales de alarma</div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;gap:9px;font-size:12px;">
+      <div style="background:rgba(239,68,68,.08);border:1px solid rgba(239,68,68,.25);border-radius:10px;padding:10px;"><b style="color:var(--dn)">🔴 PARA si sientes:</b><br><span style="color:var(--mu);line-height:1.7;">• Dolor lumbar agudo<br>• Dolor hacia glúteo/pierna<br>• Hormigueo extremidades</span></div>
+      <div style="background:rgba(34,197,94,.08);border:1px solid rgba(34,197,94,.25);border-radius:10px;padding:10px;"><b style="color:var(--ok)">🟢 Es normal:</b><br><span style="color:var(--mu);line-height:1.7;">• Leve tensión post-entreno<br>• Cansancio paravertebrales<br>• Agujetas primeras semanas</span></div>
+    </div>
+  </div>
+</div>
+
+<script>
+// ═══════════════════════════════════════════════════════════
+// SVG ILLUSTRATIONS — 2D sports medicine / anatomy manual style
+// Proporciones humanas reales · Músculo activado en naranja
+// Fondo oscuro · Animación de movimiento · Etiqueta del músculo
+// ═══════════════════════════════════════════════════════════
+
+const A = {
+
+// ─────────────────────────────────────────────────────────
+'press_militar': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.pm{transform-origin:100px 100px;animation:pmUp 1.8s ease-in-out infinite alternate;}@keyframes pmUp{from{transform:translateY(0)}to{transform:translateY(-18px)}}.dp{animation:dPul 1.8s ease-in-out infinite alternate;}@keyframes dPul{from{opacity:.75}to{opacity:1}}</style></defs>
+<!-- banco --><rect x="88" y="138" width="6" height="28" rx="2" fill="#1e2d45"/><rect x="82" y="154" width="18" height="5" rx="2" fill="#1e2d45"/>
+<!-- piernas --><path d="M88,132 Q84,148 85,158 Q88,160 92,158 Q93,148 90,132Z" fill="#2d4a6e"/><path d="M112,132 Q116,148 115,158 Q112,160 108,158 Q107,148 110,132Z" fill="#2d4a6e"/><ellipse cx="87" cy="158" rx="8" ry="4" fill="#1a3050"/><ellipse cx="113" cy="158" rx="8" ry="4" fill="#1a3050"/>
+<!-- abdomen --><path d="M88,108 Q94,104 100,103 Q106,104 112,108 Q114,120 112,132 Q106,135 100,135 Q94,135 88,132 Q86,120 88,108Z" fill="#2d4a6e"/>
+<!-- pecho --><path d="M88,88 Q94,82 100,81 Q106,82 112,88 Q114,100 112,108 Q106,110 100,111 Q94,110 88,108 Q86,100 88,88Z" fill="#3a5878"/>
+<!-- DELTOIDES activo --><g class="dp"><path d="M88,88 Q80,82 77,90 Q75,100 80,106 Q86,108 88,103 Q88,94 88,88Z" fill="#FF6B35" opacity=".9"/><path d="M112,88 Q120,82 123,90 Q125,100 120,106 Q114,108 112,103 Q112,94 112,88Z" fill="#FF6B35" opacity=".9"/></g>
+<!-- trapecio --><path d="M92,78 Q100,73 108,78 Q106,86 100,87 Q94,86 92,78Z" fill="#4a6888" opacity=".8"/>
+<!-- cuello --><rect x="97" y="64" width="6" height="10" rx="3" fill="#c8956c"/>
+<!-- cabeza --><ellipse cx="100" cy="56" rx="11" ry="13" fill="#c8956c"/><ellipse cx="100" cy="57" rx="8" ry="10" fill="#d4a077"/><ellipse cx="97" cy="55" rx="2" ry="1.5" fill="#8a6040" opacity=".5"/><ellipse cx="103" cy="55" rx="2" ry="1.5" fill="#8a6040" opacity=".5"/><path d="M97,61 Q100,63 103,61" stroke="#8a6040" stroke-width="1" fill="none" stroke-linecap="round" opacity=".5"/><path d="M89,48 Q100,42 111,48 Q109,50 100,49 Q91,50 89,48Z" fill="#3a2510"/>
+<!-- brazos superiores --><path d="M88,92 Q80,96 78,104 Q78,112 83,114 Q88,112 89,106 Q89,98 88,92Z" fill="#4a6888"/><path d="M112,92 Q120,96 122,104 Q122,112 117,114 Q112,112 111,106 Q111,98 112,92Z" fill="#4a6888"/>
+<!-- antebrazos + mancuernas animados --><g class="pm"><path d="M78,104 Q73,110 72,118 Q74,122 79,121 Q83,118 82,111 Q81,106 79,104Z" fill="#c8956c"/><ellipse cx="72" cy="120" rx="5" ry="6" fill="#c8956c"/><rect x="56" y="116" width="20" height="6" rx="3" fill="#7a8a9a"/><rect x="51" y="113" width="7" height="12" rx="2" fill="#5a6a7a"/><rect x="75" y="113" width="7" height="12" rx="2" fill="#5a6a7a"/>
+<path d="M122,104 Q127,110 128,118 Q126,122 121,121 Q117,118 118,111 Q119,106 121,104Z" fill="#c8956c"/><ellipse cx="128" cy="120" rx="5" ry="6" fill="#c8956c"/><rect x="124" y="116" width="20" height="6" rx="3" fill="#7a8a9a"/><rect x="119" y="113" width="7" height="12" rx="2" fill="#5a6a7a"/><rect x="143" y="113" width="7" height="12" rx="2" fill="#5a6a7a"/></g>
+<!-- label --><rect x="32" y="3" width="136" height="15" rx="7" fill="#FF6B35" opacity=".9"/><text x="100" y="13.5" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">DELTOIDES</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'press_arnold': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.pa{transform-origin:100px 100px;animation:paUp 1.9s ease-in-out infinite;}@keyframes paUp{0%,100%{transform:translateY(0) rotate(0deg)}50%{transform:translateY(-16px) rotate(3deg)}}.dp2{animation:dp2P 1.9s ease-in-out infinite;}@keyframes dp2P{0%,100%{opacity:.7}50%{opacity:1}}</style></defs>
+<rect x="88" y="138" width="6" height="28" rx="2" fill="#1e2d45"/><rect x="82" y="154" width="18" height="5" rx="2" fill="#1e2d45"/>
+<path d="M88,132 Q84,148 85,158 Q88,160 92,158 Q93,148 90,132Z" fill="#2d4a6e"/><path d="M112,132 Q116,148 115,158 Q112,160 108,158 Q107,148 110,132Z" fill="#2d4a6e"/><ellipse cx="87" cy="158" rx="8" ry="4" fill="#1a3050"/><ellipse cx="113" cy="158" rx="8" ry="4" fill="#1a3050"/>
+<path d="M88,108 Q94,104 100,103 Q106,104 112,108 Q114,120 112,132 Q106,135 100,135 Q94,135 88,132 Q86,120 88,108Z" fill="#2d4a6e"/>
+<path d="M88,88 Q94,82 100,81 Q106,82 112,88 Q114,100 112,108 Q106,110 100,111 Q94,110 88,108 Q86,100 88,88Z" fill="#3a5878"/>
+<!-- DELTOIDES 3 HACES --><g class="dp2"><path d="M88,88 Q80,82 77,90 Q75,100 80,106 Q86,108 88,103 Q88,94 88,88Z" fill="#FF6B35" opacity=".9"/><path d="M112,88 Q120,82 123,90 Q125,100 120,106 Q114,108 112,103 Q112,94 112,88Z" fill="#FF6B35" opacity=".9"/><path d="M84,96 Q80,96 79,101 Q80,106 84,106 Q87,104 86,100 Q85,97 84,96Z" fill="#FF8C42" opacity=".7"/><path d="M116,96 Q120,96 121,101 Q120,106 116,106 Q113,104 114,100 Q115,97 116,96Z" fill="#FF8C42" opacity=".7"/></g>
+<path d="M92,78 Q100,73 108,78 Q106,86 100,87 Q94,86 92,78Z" fill="#4a6888" opacity=".8"/>
+<rect x="97" y="64" width="6" height="10" rx="3" fill="#c8956c"/>
+<ellipse cx="100" cy="56" rx="11" ry="13" fill="#c8956c"/><ellipse cx="100" cy="57" rx="8" ry="10" fill="#d4a077"/><path d="M89,48 Q100,42 111,48 Q109,50 100,49 Q91,50 89,48Z" fill="#3a2510"/>
+<path d="M88,92 Q80,96 78,104 Q78,112 83,114 Q88,112 89,106 Q89,98 88,92Z" fill="#4a6888"/><path d="M112,92 Q120,96 122,104 Q122,112 117,114 Q112,112 111,106 Q111,98 112,92Z" fill="#4a6888"/>
+<g class="pa"><path d="M78,104 Q73,110 72,118 Q74,122 79,121 Q83,118 82,111 Q81,106 79,104Z" fill="#c8956c"/><ellipse cx="72" cy="120" rx="5" ry="6" fill="#c8956c"/><rect x="56" y="116" width="20" height="6" rx="3" fill="#7a8a9a"/><rect x="51" y="113" width="7" height="12" rx="2" fill="#5a6a7a"/><rect x="75" y="113" width="7" height="12" rx="2" fill="#5a6a7a"/>
+<path d="M122,104 Q127,110 128,118 Q126,122 121,121 Q117,118 118,111 Q119,106 121,104Z" fill="#c8956c"/><ellipse cx="128" cy="120" rx="5" ry="6" fill="#c8956c"/><rect x="124" y="116" width="20" height="6" rx="3" fill="#7a8a9a"/><rect x="119" y="113" width="7" height="12" rx="2" fill="#5a6a7a"/><rect x="143" y="113" width="7" height="12" rx="2" fill="#5a6a7a"/></g>
+<rect x="22" y="3" width="156" height="15" rx="7" fill="#FF6B35" opacity=".9"/><text x="100" y="13.5" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">DELTOIDES — 3 HACES</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'elev_laterales': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.elL{transform-origin:77px 90px;animation:elUp 1.4s ease-in-out infinite alternate;}. elR{transform-origin:123px 90px;animation:elUp 1.4s ease-in-out infinite alternate;}@keyframes elUp{from{transform:rotate(22deg)}to{transform:rotate(-26deg)}}.dlp{animation:dlPul 1.4s ease-in-out infinite alternate;}@keyframes dlPul{from{opacity:.7}to{opacity:1}}</style></defs>
+<path d="M88,110 Q94,106 100,105 Q106,106 112,110 Q114,122 112,135 Q106,138 100,139 Q94,138 88,135 Q86,122 88,110Z" fill="#2d4a6e"/>
+<path d="M88,88 Q94,82 100,81 Q106,82 112,88 Q114,100 112,110 Q106,112 100,113 Q94,112 88,110 Q86,100 88,88Z" fill="#3a5878"/>
+<line x1="100" y1="83" x2="100" y2="109" stroke="#4a6888" stroke-width="1" opacity=".5"/>
+<!-- DELTOIDES LATERAL ACTIVO --><g class="dlp"><path d="M88,90 Q80,85 76,94 Q74,104 80,110 Q86,111 88,106 Q88,96 88,90Z" fill="#FF6B35" opacity=".95"/><path d="M112,90 Q120,85 124,94 Q126,104 120,110 Q114,111 112,106 Q112,96 112,90Z" fill="#FF6B35" opacity=".95"/></g>
+<path d="M92,80 Q100,75 108,80 Q106,88 100,89 Q94,88 92,80Z" fill="#4a6888" opacity=".8"/>
+<rect x="97" y="66" width="6" height="10" rx="3" fill="#c8956c"/>
+<ellipse cx="100" cy="58" rx="11" ry="13" fill="#c8956c"/><ellipse cx="100" cy="59" rx="8" ry="10" fill="#d4a077"/><path d="M89,50 Q100,44 111,50 Q109,52 100,51 Q91,52 89,50Z" fill="#3a2510"/>
+<!-- brazos superiores --><path d="M88,93 Q80,97 78,106 Q78,113 83,114 Q88,112 89,105 Q89,97 88,93Z" fill="#4a6888"/><path d="M112,93 Q120,97 122,106 Q122,113 117,114 Q112,112 111,105 Q111,97 112,93Z" fill="#4a6888"/>
+<!-- antebrazos animados izq --><g class="elL"><path d="M78,106 Q70,112 68,120 Q70,125 76,124 Q80,121 80,113 Q80,108 78,106Z" fill="#c8956c"/><ellipse cx="67" cy="122" rx="5" ry="5" fill="#c8956c"/><rect x="50" y="118" width="20" height="6" rx="3" fill="#7a8a9a"/><rect x="44" y="115" width="7" height="12" rx="2" fill="#5a6a7a"/><rect x="69" y="115" width="7" height="12" rx="2" fill="#5a6a7a"/></g>
+<!-- antebrazos animados der --><g style="transform-origin:123px 90px;animation:elUp 1.4s ease-in-out infinite alternate"><path d="M122,106 Q130,112 132,120 Q130,125 124,124 Q120,121 120,113 Q120,108 122,106Z" fill="#c8956c"/><ellipse cx="133" cy="122" rx="5" ry="5" fill="#c8956c"/><rect x="130" y="118" width="20" height="6" rx="3" fill="#7a8a9a"/><rect x="125" y="115" width="7" height="12" rx="2" fill="#5a6a7a"/><rect x="149" y="115" width="7" height="12" rx="2" fill="#5a6a7a"/></g>
+<!-- piernas --><path d="M88,135 Q84,150 85,160 Q88,162 92,160 Q93,150 90,135Z" fill="#2d4a6e"/><path d="M112,135 Q116,150 115,160 Q112,162 108,160 Q107,150 110,135Z" fill="#2d4a6e"/><ellipse cx="87" cy="161" rx="8" ry="4" fill="#1a3050"/><ellipse cx="113" cy="161" rx="8" ry="4" fill="#1a3050"/>
+<rect x="28" y="3" width="144" height="15" rx="7" fill="#FF6B35" opacity=".9"/><text x="100" y="13.5" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">DELTOIDES LATERAL</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'face_pulls': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.fp{animation:fpPull 1.5s ease-in-out infinite alternate;}@keyframes fpPull{from{transform:translateX(10px)}to{transform:translateX(-2px)}}.dpp{animation:dpPul 1.5s ease-in-out infinite alternate;}@keyframes dpPul{from{opacity:.65}to{opacity:1}}</style></defs>
+<!-- polea --><rect x="162" y="6" width="10" height="75" rx="3" fill="#1e2d45"/><circle cx="162" cy="40" r="7" fill="#2a3a5a" stroke="#4a5a6a" stroke-width="2"/><circle cx="162" cy="40" r="3" fill="#1a2a3a"/><line x1="162" y1="47" x2="138" y2="82" stroke="#5a6a7a" stroke-width="2"/>
+<!-- cuerpo --><path d="M78,112 Q84,108 90,107 Q96,108 102,112 Q104,124 102,137 Q96,140 90,141 Q84,140 78,137 Q76,124 78,112Z" fill="#2d4a6e"/>
+<path d="M78,90 Q84,84 90,83 Q96,84 102,90 Q104,102 102,112 Q96,114 90,115 Q84,114 78,112 Q76,102 78,90Z" fill="#3a5878"/>
+<!-- DELTOIDES POSTERIOR ACTIVO --><g class="dpp"><path d="M78,90 Q70,84 67,93 Q65,103 70,109 Q76,111 78,106 Q78,96 78,90Z" fill="#FF6B35" opacity=".95"/><path d="M102,90 Q110,84 113,93 Q115,103 110,109 Q104,111 102,106 Q102,96 102,90Z" fill="#FF6B35" opacity=".95"/></g>
+<!-- trapecio activo (sec) --><path d="M82,80 Q90,75 98,80 Q96,88 90,89 Q84,88 82,80Z" fill="#FF8C42" opacity=".6"/>
+<rect x="87" y="66" width="6" height="10" rx="3" fill="#c8956c"/>
+<ellipse cx="90" cy="58" rx="11" ry="13" fill="#c8956c"/><ellipse cx="90" cy="59" rx="8" ry="10" fill="#d4a077"/><path d="M79,50 Q90,44 101,50 Q99,52 90,51 Q81,52 79,50Z" fill="#3a2510"/>
+<!-- brazos superiores --><path d="M78,93 Q70,97 68,106 Q68,113 73,114 Q78,112 79,105 Q79,97 78,93Z" fill="#4a6888"/><path d="M102,93 Q110,97 112,106 Q112,113 107,114 Q102,112 101,105 Q101,97 102,93Z" fill="#4a6888"/>
+<!-- brazos + cuerda animados --><g class="fp"><path d="M68,106 Q62,112 60,120 Q62,124 68,123 Q72,120 71,113 Q71,108 68,106Z" fill="#c8956c"/><path d="M112,106 Q118,112 120,120 Q118,124 112,123 Q108,120 109,113 Q109,108 112,106Z" fill="#c8956c"/><ellipse cx="60" cy="122" rx="5" ry="6" fill="#c8956c"/><ellipse cx="120" cy="122" rx="5" ry="6" fill="#c8956c"/><!-- cuerda --><path d="M60,122 Q90,114 120,122" stroke="#7a8a9a" stroke-width="3" fill="none" stroke-linecap="round"/><ellipse cx="90" cy="117" rx="7" ry="4" fill="#5a6a7a"/></g>
+<!-- piernas --><path d="M78,137 Q74,152 75,162 Q78,164 82,162 Q83,152 80,137Z" fill="#2d4a6e"/><path d="M102,137 Q106,152 105,162 Q102,164 98,162 Q97,152 100,137Z" fill="#2d4a6e"/><ellipse cx="77" cy="163" rx="8" ry="4" fill="#1a3050"/><ellipse cx="103" cy="163" rx="8" ry="4" fill="#1a3050"/>
+<rect x="20" y="3" width="160" height="15" rx="7" fill="#FF6B35" opacity=".9"/><text x="100" y="13.5" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">DELTOIDES POSTERIOR</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'jalones': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.jl{animation:jlD 1.8s ease-in-out infinite alternate;}@keyframes jlD{from{transform:translateY(-12px)}to{transform:translateY(7px)}}.dlr{animation:dlR 1.8s ease-in-out infinite alternate;}@keyframes dlR{from{opacity:.65}to{opacity:1}}</style></defs>
+<!-- máquina --><rect x="22" y="6" width="156" height="9" rx="4" fill="#1e2d45"/><rect x="90" y="15" width="20" height="5" rx="2" fill="#1e2d45"/><circle cx="100" cy="24" r="6" fill="#2a3a5a" stroke="#4a5a6a" stroke-width="2"/>
+<!-- cable --><line x1="100" y1="30" x2="100" y2="54" stroke="#5a6a7a" stroke-width="2"/>
+<!-- BARRA + BRAZOS animados --><g class="jl">
+<rect x="44" y="48" width="112" height="8" rx="4" fill="#7a8a9a"/><rect x="36" y="44" width="10" height="16" rx="3" fill="#5a6a7a"/><rect x="154" y="44" width="10" height="16" rx="3" fill="#5a6a7a"/>
+<!-- brazo izq --><path d="M88,82 Q78,74 72,62 Q70,55 76,50 Q80,48 84,51 Q88,56 88,66 Q88,76 88,82Z" fill="#4a6888"/>
+<path d="M72,62 Q68,56 44,54 Q44,60 46,64 Q68,64 72,68Z" fill="#c8956c"/><ellipse cx="44" cy="56" rx="5" ry="5" fill="#c8956c"/>
+<!-- brazo der --><path d="M112,82 Q122,74 128,62 Q130,55 124,50 Q120,48 116,51 Q112,56 112,66 Q112,76 112,82Z" fill="#4a6888"/>
+<path d="M128,62 Q132,56 156,54 Q156,60 154,64 Q132,64 128,68Z" fill="#c8956c"/><ellipse cx="156" cy="56" rx="5" ry="5" fill="#c8956c"/>
+</g>
+<!-- DORSAL ACTIVO --><g class="dlr"><path d="M88,86 Q80,92 76,106 Q76,118 82,124 Q88,126 90,118 Q90,104 90,90 Q90,86 88,86Z" fill="#FF6B35" opacity=".95"/><path d="M112,86 Q120,92 124,106 Q124,118 118,124 Q112,126 110,118 Q110,104 110,90 Q110,86 112,86Z" fill="#FF6B35" opacity=".95"/></g>
+<!-- pecho --><path d="M88,84 Q94,78 100,77 Q106,78 112,84 Q114,96 112,107 Q106,109 100,110 Q94,109 88,107 Q86,96 88,84Z" fill="#3a5878"/>
+<!-- abdomen --><path d="M90,108 Q94,105 100,104 Q106,105 110,108 Q112,120 110,133 Q106,136 100,137 Q94,136 90,133 Q88,120 90,108Z" fill="#2d4a6e"/>
+<!-- trapecio --><path d="M92,76 Q100,71 108,76 Q106,84 100,85 Q94,84 92,76Z" fill="#4a6888" opacity=".7"/>
+<rect x="97" y="62" width="6" height="10" rx="3" fill="#c8956c"/>
+<ellipse cx="100" cy="54" rx="11" ry="13" fill="#c8956c"/><ellipse cx="100" cy="55" rx="8" ry="10" fill="#d4a077"/><path d="M89,46 Q100,40 111,46 Q109,48 100,47 Q91,48 89,46Z" fill="#3a2510"/>
+<!-- piernas --><path d="M88,133 Q83,148 84,158 Q87,160 91,158 Q93,148 91,133Z" fill="#2d4a6e"/><path d="M112,133 Q117,148 116,158 Q113,160 109,158 Q107,148 109,133Z" fill="#2d4a6e"/><ellipse cx="87" cy="159" rx="9" ry="4" fill="#1a3050"/><ellipse cx="113" cy="159" rx="9" ry="4" fill="#1a3050"/>
+<rect x="34" y="160" width="132" height="13" rx="6" fill="#FF6B35" opacity=".9"/><text x="100" y="170" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">DORSAL ANCHO</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'remo_cable': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.rm{animation:rmR 1.5s ease-in-out infinite alternate;}@keyframes rmR{from{transform:translateX(-8px)}to{transform:translateX(7px)}}.drc{animation:drcP 1.5s ease-in-out infinite alternate;}@keyframes drcP{from{opacity:.65}to{opacity:1}}</style></defs>
+<!-- polea lateral --><rect x="6" y="38" width="10" height="70" rx="3" fill="#1e2d45"/><circle cx="16" cy="68" r="6" fill="#2a3a5a" stroke="#4a5a6a" stroke-width="2"/>
+<!-- cuerpo sentado --><path d="M83,115 Q89,111 95,110 Q101,111 107,115 Q109,130 107,143 Q101,146 95,143 Q89,142 83,143 Q81,130 83,115Z" fill="#2d4a6e"/>
+<!-- DORSAL + ROMBOIDES ACTIVOS --><g class="drc"><path d="M83,88 Q75,93 72,107 Q72,119 78,124 Q84,126 85,118 Q85,104 85,92 Q85,88 83,88Z" fill="#FF6B35" opacity=".95"/><path d="M107,88 Q115,93 118,107 Q118,119 112,124 Q106,126 105,118 Q105,104 105,92 Q105,88 107,88Z" fill="#FF6B35" opacity=".9"/><ellipse cx="95" cy="98" rx="10" ry="7" fill="#FF8C42" opacity=".55"/></g>
+<!-- pecho --><path d="M83,86 Q89,80 95,79 Q101,80 107,86 Q109,98 107,109 Q101,111 95,112 Q89,111 83,109 Q81,98 83,86Z" fill="#3a5878"/>
+<!-- trapecio --><path d="M87,78 Q95,73 103,78 Q101,86 95,87 Q89,86 87,78Z" fill="#4a6888" opacity=".75"/>
+<rect x="92" y="64" width="6" height="10" rx="3" fill="#c8956c"/>
+<ellipse cx="95" cy="56" rx="11" ry="13" fill="#c8956c"/><ellipse cx="95" cy="57" rx="8" ry="10" fill="#d4a077"/><path d="M84,48 Q95,42 106,48 Q104,50 95,49 Q86,50 84,48Z" fill="#3a2510"/>
+<!-- brazos animados --><g class="rm"><path d="M83,90 Q75,95 71,104 Q71,111 76,112 Q81,110 82,103 Q82,95 83,90Z" fill="#4a6888"/><path d="M107,90 Q115,95 119,104 Q119,111 114,112 Q109,110 108,103 Q108,95 107,90Z" fill="#4a6888"/>
+<path d="M71,104 Q64,110 62,118 Q64,122 70,121 Q74,118 74,111 Q73,107 71,104Z" fill="#c8956c"/><path d="M119,104 Q126,110 128,118 Q126,122 120,121 Q116,118 116,111 Q117,107 119,104Z" fill="#c8956c"/>
+<ellipse cx="62" cy="120" rx="5" ry="6" fill="#c8956c"/><ellipse cx="128" cy="120" rx="5" ry="6" fill="#c8956c"/>
+<ellipse cx="95" cy="122" rx="8" ry="5" fill="#5a6a7a"/>
+<line x1="62" y1="120" x2="95" y2="122" stroke="#7a8a9a" stroke-width="2"/><line x1="128" y1="120" x2="95" y2="122" stroke="#7a8a9a" stroke-width="2"/>
+<line x1="62" y1="120" x2="16" y2="68" stroke="#5a6a7a" stroke-width="1.5" stroke-dasharray="3,2"/>
+</g>
+<!-- piernas extendidas --><path d="M81,143 Q74,152 74,162 Q79,164 84,162 Q87,152 83,143Z" fill="#2d4a6e"/><path d="M109,143 Q116,152 116,162 Q111,164 106,162 Q103,152 107,143Z" fill="#2d4a6e"/><ellipse cx="78" cy="163" rx="9" ry="4" fill="#1a3050"/><ellipse cx="112" cy="163" rx="9" ry="4" fill="#1a3050"/>
+<rect x="20" y="3" width="160" height="13" rx="6" fill="#FF6B35" opacity=".9"/><text x="100" y="13" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">DORSAL · ROMBOIDES</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'remo_unilateral': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.ru{transform-origin:118px 88px;animation:ruRow 1.5s ease-in-out infinite alternate;}@keyframes ruRow{from{transform:rotate(18deg)}to{transform:rotate(-20deg)}}.dru{animation:druP 1.5s ease-in-out infinite alternate;}@keyframes druP{from{opacity:.65}to{opacity:1}}</style></defs>
+<!-- banco --><rect x="28" y="108" width="76" height="9" rx="4" fill="#1e2d45"/><rect x="32" y="117" width="12" height="18" rx="3" fill="#1e2d45"/><rect x="88" y="117" width="12" height="18" rx="3" fill="#1e2d45"/>
+<!-- figura inclinada -->
+<!-- cabeza --><ellipse cx="140" cy="52" rx="12" ry="14" fill="#c8956c"/><ellipse cx="140" cy="53" rx="9" ry="11" fill="#d4a077"/><path d="M128,43 Q140,37 152,43 Q150,45 140,44 Q130,45 128,43Z" fill="#3a2510"/>
+<rect x="136" y="60" width="7" height="10" rx="3" fill="#c8956c"/>
+<!-- torso inclinado --><path d="M132,66 Q96,82 58,95 Q56,107 58,109 Q96,97 136,80Z" fill="#3a5878"/>
+<!-- DORSAL ACTIVO --><g class="dru"><path d="M100,74 Q114,70 124,76 Q122,96 115,100 Q107,102 104,92 Q102,82 100,74Z" fill="#FF6B35" opacity=".95"/></g>
+<!-- hombro der --><ellipse cx="132" cy="72" rx="12" ry="9" fill="#4a6888"/>
+<!-- brazo apoyo izq (en banco) --><path d="M80,87 Q72,93 68,101 Q68,108 74,108 Q79,106 80,98 Q80,91 80,87Z" fill="#4a6888"/><path d="M68,101 Q62,107 60,112 Q62,116 68,115 Q72,112 72,105 Q71,102 68,101Z" fill="#c8956c"/><ellipse cx="60" cy="114" rx="5" ry="5" fill="#c8956c"/>
+<!-- rodilla en banco --><ellipse cx="60" cy="113" rx="10" ry="7" fill="#3a5878"/>
+<!-- BRAZO DER animado con mancuerna --><g class="ru"><path d="M126,72 Q134,78 138,90 Q138,100 132,104 Q125,104 122,96 Q120,86 122,76Z" fill="#4a6888"/><path d="M136,94 Q142,100 145,110 Q143,115 137,114 Q133,111 134,103 Q134,97 136,94Z" fill="#c8956c"/><ellipse cx="143" cy="113" rx="5" ry="6" fill="#c8956c"/><rect x="138" y="117" width="18" height="6" rx="3" fill="#7a8a9a"/><rect x="134" y="114" width="6" height="12" rx="2" fill="#5a6a7a"/><rect x="155" y="114" width="6" height="12" rx="2" fill="#5a6a7a"/></g>
+<!-- piernas --><path d="M58,109 Q52,124 52,136 Q56,138 61,136 Q63,124 62,109Z" fill="#2d4a6e"/><path d="M92,100 Q98,115 97,128 Q102,130 107,128 Q108,115 103,100Z" fill="#2d4a6e"/><ellipse cx="56" cy="137" rx="9" ry="4" fill="#1a3050"/><ellipse cx="103" cy="129" rx="9" ry="4" fill="#1a3050"/>
+<rect x="30" y="155" width="140" height="13" rx="6" fill="#FF6B35" opacity=".9"/><text x="100" y="165" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">DORSAL ANCHO</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'curl_biceps': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.cbL{transform-origin:76px 100px;animation:cbCurl 1.3s ease-in-out infinite alternate;}@keyframes cbCurl{from{transform:rotate(32deg)}to{transform:rotate(-34deg)}}.cbR{transform-origin:124px 100px;animation:cbCurl2 1.3s ease-in-out infinite alternate;}@keyframes cbCurl2{from{transform:rotate(-16deg)}to{transform:rotate(18deg)}}.bcp{animation:bcP 1.3s ease-in-out infinite alternate;}@keyframes bcP{from{opacity:.7}to{opacity:1}}</style></defs>
+<path d="M88,112 Q94,108 100,107 Q106,108 112,112 Q114,124 112,137 Q106,140 100,141 Q94,140 88,137 Q86,124 88,112Z" fill="#2d4a6e"/>
+<path d="M88,90 Q94,84 100,83 Q106,84 112,90 Q114,102 112,112 Q106,114 100,115 Q94,114 88,112 Q86,102 88,90Z" fill="#3a5878"/>
+<!-- BÍCEPS ACTIVOS con pico muscular --><g class="bcp"><path d="M88,94 Q80,92 77,98 Q75,106 78,112 Q82,116 87,114 Q88,110 88,100 Q88,96 88,94Z" fill="#FF6B35" opacity=".95"/><path d="M112,94 Q120,92 123,98 Q125,106 122,112 Q118,116 113,114 Q112,110 112,100 Q112,96 112,94Z" fill="#FF6B35" opacity=".95"/><!-- pico del bíceps --><path d="M80,98 Q78,94 80,90 Q82,88 84,90 Q84,96 82,100Z" fill="#FF8C42" opacity=".7"/><path d="M120,98 Q122,94 120,90 Q118,88 116,90 Q116,96 118,100Z" fill="#FF8C42" opacity=".7"/></g>
+<path d="M91,82 Q100,77 109,82 Q107,90 100,91 Q93,90 91,82Z" fill="#4a6888" opacity=".75"/>
+<rect x="97" y="68" width="6" height="10" rx="3" fill="#c8956c"/>
+<ellipse cx="100" cy="60" rx="11" ry="13" fill="#c8956c"/><ellipse cx="100" cy="61" rx="8" ry="10" fill="#d4a077"/><path d="M89,52 Q100,46 111,52 Q109,54 100,53 Q91,54 89,52Z" fill="#3a2510"/>
+<!-- brazos superiores fijos --><path d="M88,95 Q80,100 78,109 Q78,116 83,117 Q88,115 89,108 Q89,100 88,95Z" fill="#4a6888"/><path d="M112,95 Q120,100 122,109 Q122,116 117,117 Q112,115 111,108 Q111,100 112,95Z" fill="#4a6888"/>
+<!-- antebrazo + mancuerna IZQ animados --><g class="cbL"><path d="M78,109 Q72,115 70,124 Q72,128 78,127 Q82,124 82,116 Q81,111 78,109Z" fill="#c8956c"/><ellipse cx="70" cy="126" rx="5" ry="6" fill="#c8956c"/><rect x="54" y="122" width="20" height="6" rx="3" fill="#7a8a9a"/><rect x="48" y="119" width="7" height="12" rx="2" fill="#5a6a7a"/><rect x="73" y="119" width="7" height="12" rx="2" fill="#5a6a7a"/></g>
+<!-- antebrazo + mancuerna DER animados --><g class="cbR"><path d="M122,109 Q128,115 130,124 Q128,128 122,127 Q118,124 118,116 Q119,111 122,109Z" fill="#c8956c"/><ellipse cx="130" cy="126" rx="5" ry="6" fill="#c8956c"/><rect x="126" y="122" width="20" height="6" rx="3" fill="#7a8a9a"/><rect x="121" y="119" width="7" height="12" rx="2" fill="#5a6a7a"/><rect x="145" y="119" width="7" height="12" rx="2" fill="#5a6a7a"/></g>
+<path d="M88,137 Q84,152 85,162 Q88,164 92,162 Q93,152 91,137Z" fill="#2d4a6e"/><path d="M112,137 Q116,152 115,162 Q112,164 108,162 Q107,152 109,137Z" fill="#2d4a6e"/><ellipse cx="87" cy="163" rx="8" ry="4" fill="#1a3050"/><ellipse cx="113" cy="163" rx="8" ry="4" fill="#1a3050"/>
+<rect x="48" y="3" width="104" height="13" rx="6" fill="#FF6B35" opacity=".9"/><text x="100" y="13" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">BÍCEPS</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'press_frances': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.pfb{transform-origin:100px 90px;animation:pfSkull 1.6s ease-in-out infinite alternate;}@keyframes pfSkull{from{transform:rotate(-36deg)}to{transform:rotate(5deg)}}.trp{animation:trP 1.6s ease-in-out infinite alternate;}@keyframes trP{from{opacity:.7}to{opacity:1}}</style></defs>
+<!-- banco --><rect x="14" y="118" width="172" height="10" rx="4" fill="#1e2d45"/><rect x="18" y="128" width="14" height="18" rx="3" fill="#1e2d45"/><rect x="168" y="128" width="14" height="18" rx="3" fill="#1e2d45"/>
+<!-- piernas --><path d="M32,118 Q26,128 26,138 Q30,140 36,138 Q38,128 36,118Z" fill="#2d4a6e"/><ellipse cx="30" cy="139" rx="9" ry="4" fill="#1a3050"/>
+<!-- cabeza --><ellipse cx="164" cy="108" rx="12" ry="14" fill="#c8956c"/><ellipse cx="164" cy="109" rx="9" ry="11" fill="#d4a077"/><path d="M152,99 Q164,93 176,99 Q174,101 164,100 Q154,101 152,99Z" fill="#3a2510"/>
+<!-- torso --><path d="M38,118 Q100,112 156,112 Q158,122 100,122 Q42,122 38,118Z" fill="#3a5878"/>
+<!-- TRÍCEPS ACTIVOS --><g class="trp"><ellipse cx="80" cy="112" rx="12" ry="7" fill="#FF6B35" opacity=".9"/><ellipse cx="118" cy="112" rx="12" ry="7" fill="#FF6B35" opacity=".9"/></g>
+<!-- pecho secundario --><ellipse cx="100" cy="112" rx="20" ry="6" fill="#4a6888" opacity=".4"/>
+<!-- brazos superiores verticales --><path d="M82,112 Q80,96 80,84 Q82,76 88,76 Q94,78 94,86 Q94,98 92,112Z" fill="#4a6888"/><path d="M118,112 Q120,96 120,84 Q118,76 112,76 Q106,78 106,86 Q106,98 108,112Z" fill="#4a6888"/>
+<!-- ANTEBRAZOS + BARRA animados --><g class="pfb" style="transform-origin:100px 108px"><path d="M88,92 Q86,82 85,72 Q87,66 91,66 Q95,68 95,76 Q95,86 93,92Z" fill="#c8956c"/><path d="M112,92 Q114,82 115,72 Q113,66 109,66 Q105,68 105,76 Q105,86 107,92Z" fill="#c8956c"/><ellipse cx="88" cy="72" rx="5" ry="7" fill="#c8956c"/><ellipse cx="112" cy="72" rx="5" ry="7" fill="#c8956c"/><!-- barra EZ --><path d="M60,64 Q70,60 78,64 Q84,68 88,64 Q94,60 100,64 Q106,68 112,64 Q116,60 126,64 Q132,68 140,64" stroke="#7a8a9a" stroke-width="7" fill="none" stroke-linecap="round"/><rect x="52" y="60" width="8" height="16" rx="3" fill="#5a6a7a"/><rect x="140" y="60" width="8" height="16" rx="3" fill="#5a6a7a"/></g>
+<rect x="40" y="155" width="120" height="13" rx="6" fill="#FF6B35" opacity=".9"/><text x="100" y="165" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">TRÍCEPS</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'ext_triceps': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.etA{transform-origin:76px 108px;animation:etExt 1.3s ease-in-out infinite alternate;}.etB{transform-origin:124px 108px;animation:etExt 1.3s ease-in-out infinite alternate;}@keyframes etExt{from{transform:rotate(-30deg)}to{transform:rotate(12deg)}}.trep{animation:trEP 1.3s ease-in-out infinite alternate;}@keyframes trEP{from{opacity:.7}to{opacity:1}}</style></defs>
+<!-- polea --><rect x="82" y="2" width="36" height="9" rx="4" fill="#1e2d45"/><circle cx="100" cy="14" r="7" fill="#2a3a5a" stroke="#4a5a6a" stroke-width="2"/><line x1="100" y1="21" x2="100" y2="46" stroke="#5a6a7a" stroke-width="2.5"/>
+<path d="M88,112 Q94,108 100,107 Q106,108 112,112 Q114,124 112,138 Q106,141 100,142 Q94,141 88,138 Q86,124 88,112Z" fill="#2d4a6e"/>
+<path d="M88,90 Q94,84 100,83 Q106,84 112,90 Q114,102 112,112 Q106,114 100,115 Q94,114 88,112 Q86,102 88,90Z" fill="#3a5878"/>
+<!-- TRÍCEPS ACTIVOS --><g class="trep"><path d="M88,94 Q80,98 77,108 Q76,118 81,122 Q87,124 88,116 Q88,106 88,94Z" fill="#FF6B35" opacity=".95"/><path d="M112,94 Q120,98 123,108 Q124,118 119,122 Q113,124 112,116 Q112,106 112,94Z" fill="#FF6B35" opacity=".95"/></g>
+<path d="M91,82 Q100,77 109,82 Q107,90 100,91 Q93,90 91,82Z" fill="#4a6888" opacity=".75"/>
+<rect x="97" y="68" width="6" height="10" rx="3" fill="#c8956c"/>
+<ellipse cx="100" cy="60" rx="11" ry="13" fill="#c8956c"/><ellipse cx="100" cy="61" rx="8" ry="10" fill="#d4a077"/><path d="M89,52 Q100,46 111,52 Q109,54 100,53 Q91,54 89,52Z" fill="#3a2510"/>
+<!-- brazos superiores fijos --><path d="M88,94 Q80,98 78,108 Q78,118 83,120 Q88,118 88,110 Q88,100 88,94Z" fill="#4a6888"/><path d="M112,94 Q120,98 122,108 Q122,118 117,120 Q112,118 112,110 Q112,100 112,94Z" fill="#4a6888"/>
+<!-- ANTEBRAZOS animados --><g class="etA"><path d="M78,108 Q72,114 70,124 Q72,128 78,127 Q82,124 82,116 Q81,111 78,108Z" fill="#c8956c"/><ellipse cx="70" cy="126" rx="5" ry="6" fill="#c8956c"/></g><g class="etB"><path d="M122,108 Q128,114 130,124 Q128,128 122,127 Q118,124 118,116 Q119,111 122,108Z" fill="#c8956c"/><ellipse cx="130" cy="126" rx="5" ry="6" fill="#c8956c"/></g>
+<!-- cuerda --><path d="M70,126 Q85,132 100,132 Q115,132 130,126" stroke="#7a8a9a" stroke-width="4" fill="none" stroke-linecap="round"/><ellipse cx="100" cy="132" rx="7" ry="5" fill="#5a6a7a"/>
+<path d="M88,138 Q84,153 84,163 Q87,165 91,163 Q92,153 90,138Z" fill="#2d4a6e"/><path d="M112,138 Q116,153 116,163 Q113,165 109,163 Q108,153 110,138Z" fill="#2d4a6e"/><ellipse cx="87" cy="164" rx="8" ry="4" fill="#1a3050"/><ellipse cx="113" cy="164" rx="8" ry="4" fill="#1a3050"/>
+<rect x="34" y="160" width="132" height="13" rx="6" fill="#FF6B35" opacity=".9"/><text x="100" y="170" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">TRÍCEPS</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'press_inclinado': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.pi{transform-origin:95px 108px;animation:piPush 1.6s ease-in-out infinite alternate;}@keyframes piPush{from{transform:translateY(0)}to{transform:translateY(-13px)}}.pcp{animation:pcP 1.6s ease-in-out infinite alternate;}@keyframes pcP{from{opacity:.7}to{opacity:1}}</style></defs>
+<!-- banco inclinado --><line x1="18" y1="158" x2="18" y2="100" stroke="#1e2d45" stroke-width="8" stroke-linecap="round"/><line x1="18" y1="100" x2="140" y2="128" stroke="#1e2d45" stroke-width="10" stroke-linecap="round"/><line x1="18" y1="158" x2="54" y2="158" stroke="#1e2d45" stroke-width="8" stroke-linecap="round"/><line x1="140" y1="128" x2="152" y2="158" stroke="#1e2d45" stroke-width="8" stroke-linecap="round"/>
+<!-- piernas --><path d="M42,142 Q36,155 36,164 Q40,166 46,164 Q48,155 46,142Z" fill="#2d4a6e"/><ellipse cx="40" cy="165" rx="9" ry="4" fill="#1a3050"/>
+<!-- cabeza --><ellipse cx="144" cy="112" rx="12" ry="14" fill="#c8956c"/><ellipse cx="144" cy="113" rx="9" ry="11" fill="#d4a077"/><path d="M132,103 Q144,97 156,103 Q154,105 144,104 Q134,105 132,103Z" fill="#3a2510"/>
+<!-- torso inclinado --><path d="M136,116 Q95,128 54,142 Q52,152 55,154 Q96,140 138,126Z" fill="#3a5878"/>
+<!-- PECTORAL SUPERIOR ACTIVO --><g class="pcp"><path d="M72,130 Q90,120 110,124 Q112,136 100,138 Q85,138 72,130Z" fill="#FF6B35" opacity=".9"/></g>
+<!-- deltoides anterior secundario --><ellipse cx="134" cy="120" rx="10" ry="7" fill="#FF8C42" opacity=".45"/>
+<!-- brazos superiores --><path d="M128,118 Q118,122 116,130 Q116,138 122,140 Q128,138 128,130 Q128,122 128,118Z" fill="#4a6888"/><path d="M72,132 Q62,136 60,144 Q60,152 66,154 Q72,152 72,144 Q72,136 72,132Z" fill="#4a6888"/>
+<!-- ANTEBRAZOS + mancuernas animados --><g class="pi"><path d="M116,130 Q108,124 102,118 Q100,112 104,110 Q108,110 112,116 Q117,122 118,128Z" fill="#c8956c"/><ellipse cx="100" cy="110" rx="5" ry="6" fill="#c8956c"/><rect x="86" y="105" width="18" height="6" rx="3" fill="#7a8a9a" transform="rotate(20,86,105)"/><rect x="80" y="102" width="7" height="12" rx="2" fill="#5a6a7a" transform="rotate(20,80,102)"/><rect x="101" y="99" width="7" height="12" rx="2" fill="#5a6a7a" transform="rotate(20,101,99)"/>
+<path d="M72,144 Q64,138 58,132 Q56,126 60,124 Q64,124 68,130 Q73,136 74,142Z" fill="#c8956c"/><ellipse cx="56" cy="124" rx="5" ry="6" fill="#c8956c"/><rect x="42" y="119" width="18" height="6" rx="3" fill="#7a8a9a" transform="rotate(-20,42,119)"/><rect x="36" y="116" width="7" height="12" rx="2" fill="#5a6a7a" transform="rotate(-20,36,116)"/><rect x="57" y="112" width="7" height="12" rx="2" fill="#5a6a7a" transform="rotate(-20,57,112)"/></g>
+<rect x="26" y="3" width="148" height="13" rx="6" fill="#FF6B35" opacity=".9"/><text x="100" y="13" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">PECTORAL SUPERIOR</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'plancha': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.plb{animation:plBr 3s ease-in-out infinite alternate;}@keyframes plBr{from{transform:translateY(0)}to{transform:translateY(-3px)}}.crp{animation:crP 3s ease-in-out infinite alternate;}@keyframes crP{from{opacity:.72}to{opacity:1}}</style></defs>
+<!-- suelo --><rect x="0" y="140" width="200" height="35" fill="#0d1520"/><line x1="0" y1="140" x2="200" y2="140" stroke="#2a3a5a" stroke-width="2"/>
+<g class="plb">
+<!-- cabeza (de perfil) --><ellipse cx="174" cy="120" rx="12" ry="14" fill="#c8956c"/><ellipse cx="174" cy="121" rx="9" ry="10" fill="#d4a077"/><path d="M162,111 Q174,105 186,111 Q184,113 174,112 Q164,113 162,111Z" fill="#3a2510"/><rect x="170" y="128" width="7" height="7" rx="3" fill="#c8956c"/>
+<!-- hombros --><ellipse cx="158" cy="132" rx="14" ry="10" fill="#4a6888"/>
+<!-- TORSO (de perfil) --><path d="M166,132 Q108,134 44,138 Q42,143 44,145 Q108,142 168,140Z" fill="#3a5878"/>
+<!-- CORE / ABDOMEN ACTIVO --><g class="crp"><path d="M98,133 Q114,131 126,133 Q124,142 112,143 Q100,142 98,133Z" fill="#FF6B35" opacity=".9"/></g>
+<!-- lumbares (secundario) --><path d="M72,136 Q84,134 90,136 Q90,142 84,143 Q76,142 72,136Z" fill="#FF8C42" opacity=".5"/>
+<!-- brazos (antebrazos en suelo) --><path d="M156,134 Q148,136 130,137 Q130,143 148,142 Q158,140 158,136Z" fill="#4a6888"/><!-- codo izq --><ellipse cx="130" cy="140" rx="8" ry="5" fill="#3a5878"/>
+<path d="M108,136 Q96,138 82,138 Q82,144 96,143 Q108,142 108,138Z" fill="#4a6888"/><!-- codo der --><ellipse cx="82" cy="141" rx="8" ry="5" fill="#3a5878"/>
+<!-- pies (talones juntos) --><ellipse cx="32" cy="139" rx="6" ry="9" fill="#c8956c"/><ellipse cx="40" cy="141" rx="6" ry="8" fill="#c8956c"/>
+</g>
+<!-- flecha técnica --><line x1="100" y1="105" x2="100" y2="125" stroke="#FF6B35" stroke-width="1.5" stroke-dasharray="3,2" opacity=".6"/>
+<rect x="22" y="3" width="156" height="13" rx="6" fill="#FF6B35" opacity=".9"/><text x="100" y="13" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">CORE · TRANSVERSO</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'dead_bug': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.dbAR{transform-origin:122px 72px;animation:dbAR 1.7s ease-in-out infinite alternate;}.dbLL{transform-origin:78px 110px;animation:dbLL 1.7s ease-in-out infinite alternate;}@keyframes dbAR{from{transform:rotate(-22deg)}to{transform:rotate(18deg)}}@keyframes dbLL{from{transform:rotate(22deg)}to{transform:rotate(-18deg)}}.dbcr{animation:dbCR 1.7s ease-in-out infinite alternate;}@keyframes dbCR{from{opacity:.7}to{opacity:1}}</style></defs>
+<!-- suelo --><rect x="0" y="150" width="200" height="25" fill="#0d1520"/><line x1="0" y1="150" x2="200" y2="150" stroke="#2a3a5a" stroke-width="2"/>
+<!-- cabeza (vista desde arriba, tumbado) --><ellipse cx="100" cy="50" rx="13" ry="15" fill="#c8956c"/><ellipse cx="100" cy="51" rx="10" ry="12" fill="#d4a077"/><path d="M87,41 Q100,35 113,41 Q111,43 100,42 Q89,43 87,41Z" fill="#3a2510"/>
+<!-- TORSO (visto de frente tumbado) --><ellipse cx="100" cy="92" rx="22" ry="32" fill="#3a5878"/>
+<!-- CORE ACTIVO --><g class="dbcr"><ellipse cx="100" cy="98" rx="14" ry="12" fill="#FF6B35" opacity=".9"/></g>
+<!-- línea alba --><line x1="100" y1="68" x2="100" y2="120" stroke="#FF8C42" stroke-width="1.5" opacity=".55"/>
+<!-- hombros --><ellipse cx="74" cy="76" rx="13" ry="10" fill="#4a6888"/><ellipse cx="126" cy="76" rx="13" ry="10" fill="#4a6888"/>
+<!-- BRAZO IZQ (estático arriba) --><path d="M72" y1="74" Q64,66 58,56 Q56,50 60,48 Q64,48 68,54 Q74,64 74,72Z" fill="#4a6888"/><path d="M58,56 Q52,48 46,42 Q44,38 48,36 Q52,38 56,44 Q62,52 62,58Z" fill="#c8956c"/><ellipse cx="46" cy="38" rx="5" ry="6" fill="#c8956c"/>
+<!-- BRAZO DER animado --><g class="dbAR"><path d="M128,74 Q136,66 142,56 Q144,50 140,48 Q136,48 132,54 Q126,64 126,72Z" fill="#4a6888"/><path d="M142,56 Q148,48 154,42 Q156,38 152,36 Q148,38 144,44 Q138,52 138,58Z" fill="#c8956c"/><ellipse cx="154" cy="38" rx="5" ry="6" fill="#c8956c"/></g>
+<!-- cadera --><ellipse cx="100" cy="122" rx="20" ry="14" fill="#2d4a6e"/>
+<!-- PIERNA DER (estática, flexionada) --><path d="M114" y1="120 Q122,114 126,124 Q128,134 122,140 Q116,142 112,136 Q110,128 114,120Z" fill="#2d4a6e"/><path d="M122,140 Q128,144 132,150 Q132,154 126,154 Q122,152 120,146Z" fill="#2d4a6e"/><ellipse cx="126" cy="154" rx="7" ry="5" fill="#c8956c"/>
+<!-- PIERNA IZQ animada --><g class="dbLL"><path d="M86,120 Q78,114 74,124 Q72,134 78,140 Q84,142 88,136 Q90,128 86,120Z" fill="#2d4a6e"/><path d="M78,140 Q72,144 68,150 Q68,154 74,154 Q78,152 80,146Z" fill="#2d4a6e"/><ellipse cx="74" cy="154" rx="7" ry="5" fill="#c8956c"/></g>
+<rect x="22" y="3" width="156" height="13" rx="6" fill="#FF6B35" opacity=".9"/><text x="100" y="13" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">CORE · TRANSVERSO</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'plancha_lateral': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.plab{animation:plaBr 3s ease-in-out infinite alternate;}@keyframes plaBr{from{transform:translateY(0)}to{transform:translateY(-3.5px)}}.clp{animation:clP 3s ease-in-out infinite alternate;}@keyframes clP{from{opacity:.68}to{opacity:1}}</style></defs>
+<rect x="0" y="142" width="200" height="33" fill="#0d1520"/><line x1="0" y1="142" x2="200" y2="142" stroke="#2a3a5a" stroke-width="2"/>
+<g class="plab">
+<!-- cabeza lateral --><ellipse cx="174" cy="112" rx="12" ry="14" fill="#c8956c"/><ellipse cx="174" cy="113" rx="9" ry="11" fill="#d4a077"/><path d="M162,103 Q174,97 186,103 Q184,105 174,104 Q164,105 162,103Z" fill="#3a2510"/>
+<rect x="170" y="120" width="7" height="8" rx="3" fill="#c8956c"/>
+<!-- hombro apoyo --><ellipse cx="156" cy="126" rx="14" ry="10" fill="#4a6888"/>
+<!-- CUERPO LATERAL recto --><path d="M165,126 Q108,134 38,140 Q36,146 38,148 Q108,142 167,134Z" fill="#3a5878"/>
+<!-- CUADRADO LUMBAR + OBLICUOS ACTIVOS --><g class="clp"><path d="M92,132 Q106,130 116,132 Q114,140 104,141 Q93,140 92,132Z" fill="#FF6B35" opacity=".9"/><ellipse cx="130" cy="132" rx="14" ry="5" fill="#FF8C42" opacity=".45"/></g>
+<!-- antebrazo apoyo (abajo) --><path d="M152,128 Q140,132 120,134 Q120,140 140,138 Q154,134 154,130Z" fill="#4a6888"/><!-- codo --><ellipse cx="120" cy="137" rx="8" ry="5" fill="#3a5878"/>
+<!-- brazo libre (arriba) --><path d="M158,122 Q162,108 166,98 Q168,92 164,90 Q160,90 158,96 Q154,106 154,118Z" fill="#4a6888"/>
+<ellipse cx="163" cy="90" rx="5" ry="7" fill="#c8956c"/>
+<!-- piernas apiladas --><path d="M38,140 Q24,141 14,142 Q13,148 14,149 Q24,148 38,147Z" fill="#2d4a6e"/><ellipse cx="14" cy="145" rx="6" ry="8" fill="#c8956c"/>
+</g>
+<rect x="22" y="3" width="156" height="13" rx="6" fill="#FF6B35" opacity=".9"/><text x="100" y="13" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">CUADRADO LUMBAR</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'bird_dog': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.bdAE{transform-origin:122px 68px;animation:bdAE 1.7s ease-in-out infinite alternate;}.bdLE{transform-origin:72px 104px;animation:bdLE 1.7s ease-in-out infinite alternate;}@keyframes bdAE{from{transform:rotate(-20deg)}to{transform:rotate(14deg)}}@keyframes bdLE{from{transform:rotate(22deg)}to{transform:rotate(-16deg)}}.bdlp{animation:bdLP 1.7s ease-in-out infinite alternate;}@keyframes bdLP{from{opacity:.68}to{opacity:1}}</style></defs>
+<rect x="0" y="145" width="200" height="30" fill="#0d1520"/><line x1="0" y1="145" x2="200" y2="145" stroke="#2a3a5a" stroke-width="2"/>
+<!-- cabeza --><ellipse cx="162" cy="55" rx="12" ry="14" fill="#c8956c"/><ellipse cx="162" cy="56" rx="9" ry="11" fill="#d4a077"/><path d="M150,46 Q162,40 174,46 Q172,48 162,47 Q152,48 150,46Z" fill="#3a2510"/>
+<rect x="158" y="63" width="7" height="9" rx="3" fill="#c8956c"/>
+<!-- cuello + hombro --><ellipse cx="148" cy="70" rx="13" ry="10" fill="#4a6888"/>
+<!-- TORSO horizontal --><path d="M145,68 Q108,75 68,82 Q66,92 68,94 Q108,88 147,80Z" fill="#3a5878"/>
+<!-- LUMBARES + GLÚTEO ACTIVOS --><g class="bdlp"><ellipse cx="95" cy="84" rx="18" ry="7" fill="#FF6B35" opacity=".9"/><ellipse cx="72" cy="90" rx="12" ry="9" fill="#FF8C42" opacity=".7"/></g>
+<!-- brazo apoyo DER (hacia suelo, estático) --><path d="M142" y1="72" Q140,82 140,94 Q138,98 134,98 Q130,96 130,90 Q130,80 136,72Z" fill="#4a6888"/>
+<ellipse cx="132" cy="100" rx="7" ry="6" fill="#c8956c"/><ellipse cx="134" cy="110" rx="8" ry="5" fill="#3a4858"/>
+<!-- BRAZO IZQ extendido animado --><g class="bdAE"><path d="M125,67 Q116,60 108,52 Q104,46 108,43 Q112,42 116,48 Q124,58 126,66Z" fill="#4a6888"/><path d="M108,52 Q100,44 94,38 Q90,34 94,32 Q98,34 104,40 Q112,50 112,56Z" fill="#c8956c"/><ellipse cx="93" cy="33" rx="5" ry="6" fill="#c8956c"/></g>
+<!-- pierna apoyo IZQ (estática, suelo) --><path d="M76,84 Q74,96 74,108 Q72,112 68,112 Q64,110 64,104 Q64,94 70,84Z" fill="#2d4a6e"/>
+<ellipse cx="66" cy="114" rx="7" ry="6" fill="#c8956c"/><ellipse cx="68" cy="124" rx="9" ry="5" fill="#3a4858"/>
+<!-- PIERNA DER extendida animada --><g class="bdLE"><path d="M66,86 Q56,80 48,72 Q44,66 48,64 Q52,64 56,70 Q64,80 66,84Z" fill="#2d4a6e"/><path d="M48,72 Q40,64 34,58 Q30,54 34,52 Q38,54 44,60 Q52,70 52,76Z" fill="#2d4a6e"/><ellipse cx="33" cy="53" rx="5" ry="6" fill="#c8956c"/></g>
+<rect x="22" y="3" width="156" height="13" rx="6" fill="#FF6B35" opacity=".9"/><text x="100" y="13" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">LUMBARES · GLÚTEO</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'puente_gluteos': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.pgH{animation:pgUp 1.5s ease-in-out infinite alternate;}@keyframes pgUp{from{transform:translateY(0)}to{transform:translateY(-16px)}}.glp{animation:glP 1.5s ease-in-out infinite alternate;}@keyframes glP{from{opacity:.7}to{opacity:1}}</style></defs>
+<rect x="0" y="152" width="200" height="23" fill="#0d1520"/><line x1="0" y1="152" x2="200" y2="152" stroke="#2a3a5a" stroke-width="2"/>
+<!-- cabeza en suelo --><ellipse cx="168" cy="138" rx="12" ry="14" fill="#c8956c"/><ellipse cx="168" cy="139" rx="9" ry="11" fill="#d4a077"/><path d="M156,129 Q168,123 180,129 Q178,131 168,130 Q158,131 156,129Z" fill="#3a2510"/>
+<!-- hombros/torso alto en suelo --><path d="M157,140 Q124,144 92,148 Q90,155 92,157 Q124,153 159,148Z" fill="#3a5878"/>
+<!-- brazos al costado --><path d="M148,143 Q136,146 120,148 Q120,154 136,152 Q150,148 150,145Z" fill="#4a6888"/><path d="M106,147 Q94,149 80,151 Q80,157 94,155 Q108,153 108,149Z" fill="#4a6888"/>
+<!-- CADERAS + GLÚTEOS animados (sube) --><g class="pgH">
+<!-- GLÚTEOS ACTIVOS --><g class="glp"><path d="M70,120 Q90,106 112,120 Q108,138 90,142 Q72,138 70,120Z" fill="#FF6B35" opacity=".92"/></g>
+<!-- forma cadera/pelvis --><path d="M68,122 Q90,108 114,122 Q110,140 90,144 Q70,140 68,122Z" fill="#3a5878" opacity=".6"/>
+<!-- isquiotibiales (sec) --><ellipse cx="90" cy="136" rx="18" ry="7" fill="#FF8C42" opacity=".5"/>
+<!-- muslos --><path d="M72,130 Q64,140 62,150 Q66,153 72,151 Q76,142 76,132Z" fill="#2d4a6e"/><path d="M108,130 Q116,140 118,150 Q114,153 108,151 Q104,142 104,132Z" fill="#2d4a6e"/>
+<!-- rodillas --><ellipse cx="64" cy="152" rx="10" ry="7" fill="#3a5878"/><ellipse cx="116" cy="152" rx="10" ry="7" fill="#3a5878"/>
+</g>
+<!-- tibias + pies en suelo --><path d="M57,152 Q50,152 44,152 Q43,158 44,159 Q50,159 57,159Z" fill="#2d4a6e"/><ellipse cx="43" cy="155" rx="6" ry="8" fill="#c8956c"/>
+<path d="M123,152 Q130,152 136,152 Q137,158 136,159 Q130,159 123,159Z" fill="#2d4a6e"/><ellipse cx="137" cy="155" rx="6" ry="8" fill="#c8956c"/>
+<rect x="22" y="3" width="156" height="13" rx="6" fill="#FF6B35" opacity=".9"/><text x="100" y="13" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">GLÚTEO · ISQUIOS</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'curl_concentrado': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.cca{transform-origin:100px 112px;animation:ccA 1.3s ease-in-out infinite alternate;}@keyframes ccA{from{transform:rotate(28deg)}to{transform:rotate(-30deg)}}.bcp2{animation:bcp2P 1.3s ease-in-out infinite alternate;}@keyframes bcp2P{from{opacity:.7}to{opacity:1}}</style></defs>
+<!-- figura sentada inclinada --><!-- cabeza --><ellipse cx="136" cy="48" rx="12" ry="14" fill="#c8956c"/><ellipse cx="136" cy="49" rx="9" ry="11" fill="#d4a077"/><path d="M124,39 Q136,33 148,39 Q146,41 136,40 Q126,41 124,39Z" fill="#3a2510"/>
+<rect x="132" y="57" width="7" height="9" rx="3" fill="#c8956c"/>
+<!-- torso inclinado --><path d="M128,62 Q88,78 54,92 Q52,104 55,106 Q90,92 130,76Z" fill="#3a5878"/>
+<!-- hombro --><ellipse cx="128" cy="68" rx="13" ry="9" fill="#4a6888"/>
+<!-- muslo (apoyo codo) --><ellipse cx="72" cy="102" rx="24" ry="13" fill="#2d4a6e" transform="rotate(-10,72,102)"/>
+<!-- BÍCEPS ACTIVO --><g class="bcp2"><path d="M100,80 Q110,76 116,82 Q114,98 108,100 Q102,102 98,92 Q97,86 100,80Z" fill="#FF6B35" opacity=".95"/><path d="M105,76 Q109,72 111,76 Q110,82 106,84 Q103,82 103,78Z" fill="#FF8C42" opacity=".7"/></g>
+<!-- brazo superior apoyado en rodilla --><path d="M100,76 Q98,88 98,100 Q96,104 92,104 Q88,102 88,96 Q88,86 94,78Z" fill="#4a6888"/>
+<!-- antebrazo superior fijo --><path d="M100,100 Q98,108 96,116 Q94,120 90,120 Q86,118 87,112 Q89,106 100,100Z" fill="#c8956c"/>
+<!-- ANTEBRAZO ANIMADO --><g class="cca"><path d="M96,116 Q94,126 92,134 Q90,138 86,138 Q82,136 82,130 Q83,122 94,116Z" fill="#c8956c"/><ellipse cx="84" cy="138" rx="5" ry="6" fill="#c8956c"/><rect x="70" y="140" width="18" height="6" rx="3" fill="#7a8a9a"/><rect x="64" y="137" width="7" height="12" rx="2" fill="#5a6a7a"/><rect x="87" y="137" width="7" height="12" rx="2" fill="#5a6a7a"/></g>
+<!-- piernas sentado --><path d="M52,106 Q46,120 46,132 Q50,134 56,132 Q58,120 58,106Z" fill="#2d4a6e"/><ellipse cx="50" cy="133" rx="9" ry="4" fill="#1a3050"/>
+<rect x="48" y="3" width="104" height="13" rx="6" fill="#FF6B35" opacity=".9"/><text x="100" y="13" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">BÍCEPS</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'pull_over': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.poa{transform-origin:100px 104px;animation:poArc 1.7s ease-in-out infinite alternate;}@keyframes poArc{from{transform:rotate(-40deg)}to{transform:rotate(10deg)}}.dpo{animation:dpO 1.7s ease-in-out infinite alternate;}@keyframes dpO{from{opacity:.68}to{opacity:1}}</style></defs>
+<!-- banco --><rect x="14" y="118" width="172" height="10" rx="4" fill="#1e2d45"/><rect x="18" y="128" width="14" height="18" rx="3" fill="#1e2d45"/><rect x="168" y="128" width="14" height="18" rx="3" fill="#1e2d45"/>
+<!-- piernas --><path d="M32,118 Q26,128 26,138 Q30,140 36,138 Q38,128 36,118Z" fill="#2d4a6e"/><ellipse cx="30" cy="139" rx="9" ry="4" fill="#1a3050"/>
+<!-- cabeza --><ellipse cx="164" cy="110" rx="12" ry="14" fill="#c8956c"/><ellipse cx="164" cy="111" rx="9" ry="11" fill="#d4a077"/><path d="M152,101 Q164,95 176,101 Q174,103 164,102 Q154,103 152,101Z" fill="#3a2510"/>
+<!-- torso --><path d="M36,118 Q100,112 156,112 Q158,122 100,122 Q42,122 36,118Z" fill="#3a5878"/>
+<!-- DORSAL EN ESTIRAMIENTO ACTIVO --><g class="dpo"><path d="M80,113 Q96,109 114,113 Q112,124 100,125 Q88,124 80,113Z" fill="#FF6B35" opacity=".9"/></g>
+<!-- serratos --><ellipse cx="68" cy="116" rx="12" ry="6" fill="#FF8C42" opacity=".45"/><ellipse cx="132" cy="116" rx="12" ry="6" fill="#FF8C42" opacity=".45"/>
+<!-- brazos superiores --><path d="M130,112 Q128,100 128,90 Q128,82 134,81 Q140,83 140,91 Q140,103 136,112Z" fill="#4a6888"/><path d="M70,112 Q72,100 72,90 Q72,82 66,81 Q60,83 60,91 Q60,103 64,112Z" fill="#4a6888"/>
+<!-- BRAZOS + MANCUERNA animados --><g class="poa" style="transform-origin:100px 108px"><path d="M116,100 Q118,88 118,78 Q116,72 110,72 Q104,74 104,82 Q104,94 108,100Z" fill="#c8956c"/><path d="M84,100 Q82,88 82,78 Q84,72 90,72 Q96,74 96,82 Q96,94 92,100Z" fill="#c8956c"/><ellipse cx="110" cy="74" rx="6" ry="8" fill="#c8956c"/><ellipse cx="90" cy="74" rx="6" ry="8" fill="#c8956c"/><rect x="78" y="58" width="44" height="10" rx="4" fill="#7a8a9a"/><rect x="70" y="54" width="10" height="18" rx="3" fill="#5a6a7a"/><rect x="120" y="54" width="10" height="18" rx="3" fill="#5a6a7a"/></g>
+<rect x="34" y="155" width="132" height="13" rx="6" fill="#FF6B35" opacity=".9"/><text x="100" y="165" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">DORSAL ANCHO</text>
+</svg>`,
+
+// ─────────────────────────────────────────────────────────
+'calentamiento': `<svg viewBox="0 0 200 175" xmlns="http://www.w3.org/2000/svg"><defs><style>.cwL{transform-origin:77px 90px;animation:cwL 1.1s ease-in-out infinite alternate;}.cwR{transform-origin:123px 90px;animation:cwR 1.1s ease-in-out infinite alternate;}@keyframes cwL{from{transform:rotate(-55deg)}to{transform:rotate(15deg)}}@keyframes cwR{from{transform:rotate(55deg)}to{transform:rotate(-15deg)}}</style></defs>
+<path d="M88,110 Q94,106 100,105 Q106,106 112,110 Q114,122 112,136 Q106,139 100,140 Q94,139 88,136 Q86,122 88,110Z" fill="#2d4a6e"/>
+<path d="M88,88 Q94,82 100,81 Q106,82 112,88 Q114,100 112,110 Q106,112 100,113 Q94,112 88,110 Q86,100 88,88Z" fill="#3a5878"/>
+<path d="M88,90 Q80,86 77,94 Q75,104 80,110 Q86,111 88,106 Q88,96 88,90Z" fill="#FF8C42" opacity=".7"/><path d="M112,90 Q120,86 123,94 Q125,104 120,110 Q114,111 112,106 Q112,96 112,90Z" fill="#FF8C42" opacity=".7"/>
+<path d="M92,80 Q100,75 108,80 Q106,88 100,89 Q94,88 92,80Z" fill="#4a6888" opacity=".8"/>
+<rect x="97" y="66" width="6" height="10" rx="3" fill="#c8956c"/>
+<ellipse cx="100" cy="58" rx="11" ry="13" fill="#c8956c"/><ellipse cx="100" cy="59" rx="8" ry="10" fill="#d4a077"/><path d="M89,50 Q100,44 111,50 Q109,52 100,51 Q91,52 89,50Z" fill="#3a2510"/>
+<path d="M88,93 Q80,97 78,106 Q78,113 83,114 Q88,112 89,105 Q89,97 88,93Z" fill="#4a6888"/><path d="M112,93 Q120,97 122,106 Q122,113 117,114 Q112,112 111,105 Q111,97 112,93Z" fill="#4a6888"/>
+<g class="cwL"><path d="M78,106 Q70,112 68,120 Q70,125 76,124 Q80,121 80,113 Q80,108 78,106Z" fill="#c8956c"/><ellipse cx="67" cy="122" rx="5" ry="5" fill="#c8956c"/></g>
+<g class="cwR"><path d="M122,106 Q130,112 132,120 Q130,125 124,124 Q120,121 120,113 Q120,108 122,106Z" fill="#c8956c"/><ellipse cx="133" cy="122" rx="5" ry="5" fill="#c8956c"/></g>
+<path d="M88,136 Q84,150 85,160 Q88,162 92,160 Q93,150 91,136Z" fill="#2d4a6e"/><path d="M112,136 Q116,150 115,160 Q112,162 108,160 Q107,150 109,136Z" fill="#2d4a6e"/><ellipse cx="87" cy="161" rx="8" ry="4" fill="#1a3050"/><ellipse cx="113" cy="161" rx="8" ry="4" fill="#1a3050"/>
+<rect x="22" y="3" width="156" height="13" rx="6" fill="#F59E0B" opacity=".9"/><text x="100" y="13" text-anchor="middle" fill="white" font-size="8" font-family="DM Sans,sans-serif" font-weight="700">CALENTAMIENTO</text>
+</svg>`,
+
+};
+
+// ─────────────────────────────────────────────────────────
+// SVG LOOKUP
+// ── GIF filenames map ─────────────────────────────────────
+// GIFs live at ./gifs/{filename}.gif (same repo, subfolder)
+// When a GIF exists it replaces the SVG fallback automatically.
+const GIF_MAP = {
+  // — Calentamiento —
+  'calentamiento':       'calentamiento.gif',
+  // — Hombros —
+  'press_militar':       'press_militar.gif',
+  'press_arnold':        'press_arnold.gif',
+  'elev_laterales':      'elev_laterales.gif',
+  'elev_laterales_polea':'elev_laterales_polea.gif',
+  'elev_frontales':      'elev_frontales.gif',
+  'face_pulls':          'face_pulls.gif',
+  'pajaro':              'pajaro.gif',
+  // — Pecho —
+  'press_inclinado':     'press_inclinado.gif',
+  'press_plano':         'press_plano.gif',
+  'aperturas':           'aperturas.gif',
+  // — Tríceps —
+  'press_frances':       'press_frances.gif',
+  'fondos_paralelas':    'fondos_paralelas.gif',
+  'fondos_banco':        'fondos_banco.gif',
+  'ext_triceps':         'ext_triceps.gif',
+  // — Espalda —
+  'jalones':             'jalones.gif',
+  'remo_cable':          'remo_cable.gif',
+  'remo_unilateral':     'remo_unilateral.gif',
+  'pull_over':           'pull_over.gif',
+  // — Bíceps —
+  'curl_biceps':         'curl_biceps.gif',
+  'curl_martillo':       'curl_martillo.gif',
+  'curl_concentrado':    'curl_concentrado.gif',
+  'curl_scott':          'curl_scott.gif',
+  // — Core / Lumbar —
+  'plancha_frontal':     'plancha_frontal.gif',
+  'dead_bug':            'dead_bug.gif',
+  'plancha_lateral':     'plancha_lateral.gif',
+  'bird_dog':            'bird_dog.gif',
+  'puente_gluteos':      'puente_gluteos.gif',
+};
+
+// Build media box: GIF if available, SVG illustration as fallback
+function buildMedia(exName, svgKey) {
+  const gifFile = GIF_MAP[svgKey];
+  if (gifFile) {
+    // Try to load the GIF; fall back to SVG if it 404s
+    const wrap = document.createElement('div');
+    wrap.className = 'ea';
+    const img = document.createElement('img');
+    img.src = `./gifs/${gifFile}`;
+    img.alt = exName;
+    img.style.cssText = 'width:100%;height:100%;object-fit:cover;border-radius:10px;display:block;';
+    img.onerror = () => { wrap.innerHTML = A[svgKey] || A['calentamiento']; };
+    wrap.appendChild(img);
+    return wrap;
+  }
+  // No GIF mapped → SVG illustration
+  const wrap = document.createElement('div');
+  wrap.className = 'ea';
+  wrap.innerHTML = A[svgKey] || A['calentamiento'];
+  return wrap;
+}
+
+// SVG key lookup (returns the svgKey string, not the SVG itself)
+function GK(name) {
+  const n = name.toLowerCase().replace(/🔥\s*/,'');
+  const map = [
+    // más específico primero para evitar falsos positivos
+    ['calentamiento','calentamiento'],
+    ['superserie','calentamiento'],
+    // HOMBROS
+    ['press arnold','press_arnold'],
+    ['press militar','press_militar'],
+    ['elevaciones laterales en polea','elev_laterales_polea'],
+    ['elevaciones laterales','elev_laterales'],
+    ['elevaciones frontales','elev_frontales'],
+    ['face pulls','face_pulls'],
+    ['pájaro','pajaro'],['peck deck','pajaro'],
+    // PECHO
+    ['press banca inclinado','press_inclinado'],
+    ['press banca plano','press_plano'],
+    ['aperturas','aperturas'],
+    // TRÍCEPS
+    ['press francés','press_frances'],['press frances','press_frances'],
+    ['fondos en paralelas','fondos_paralelas'],
+    ['fondos en banco','fondos_banco'],
+    ['extensiones tríceps','ext_triceps'],['extensiones triceps','ext_triceps'],
+    // ESPALDA
+    ['jalones al pecho','jalones'],['jalones en polea','jalones'],
+    ['remo en polea baja','remo_cable'],
+    ['remo en máquina','remo_cable'],['remo en polea','remo_cable'],
+    ['remo unilateral','remo_unilateral'],
+    ['pull-over','pull_over'],
+    // BÍCEPS
+    ['curl concentrado','curl_concentrado'],
+    ['curl en banco scott','curl_scott'],
+    ['curl en banco','curl_scott'],
+    ['curl martillo','curl_martillo'],
+    ['curl bíceps','curl_biceps'],
+    // CORE
+    ['plancha lateral','plancha_lateral'],
+    ['plancha frontal','plancha_frontal'],
+    ['dead bug','dead_bug'],
+    ['bird-dog','bird_dog'],
+    ['puente de glúteos','puente_gluteos'],['puente de gluteos','puente_gluteos'],
+    ['superman','plancha_frontal'],
+  ];
+  for (const [k,v] of map) { if (n.includes(k)) return v; }
+  return 'calentamiento';
+}
+
+// GA kept for lumbar phase which calls it directly
+function GA(name) {
+  const key = GK(name);
+  // curl_scott uses curl_concentrado SVG as fallback (similar posture)
+  if (key === 'curl_scott') return A['curl_concentrado'] || A['calentamiento'];
+  // pajaro uses face_pulls SVG as fallback
+  if (key === 'pajaro') return A['face_pulls'] || A['calentamiento'];
+  // puente_gluteos, elev_frontales, elev_laterales_polea, press_plano, fondos_paralelas, fondos_banco use nearest SVG
+  if (key === 'puente_gluteos') return A['puente_gluteos'] || A['calentamiento'];
+  if (key === 'elev_frontales') return A['elev_laterales'] || A['calentamiento'];
+  if (key === 'elev_laterales_polea') return A['elev_laterales'] || A['calentamiento'];
+  if (key === 'press_plano') return A['press_inclinado'] || A['calentamiento'];
+  if (key === 'fondos_paralelas') return A['fondos_paralelas'] || A['ext_triceps'] || A['calentamiento'];
+  if (key === 'fondos_banco') return A['ext_triceps'] || A['calentamiento'];
+  if (key === 'plancha_frontal') return A['plancha'] || A['calentamiento'];
+  return A[key] || A['calentamiento'];
+}
+
+// ═══════════════════════════════════════════════════════════
+// TRAINING DATA
+// ═══════════════════════════════════════════════════════════
+const DAYS = [
+  {name:'LUNES',type:'PUSH A',color:'#FF6B35',subtitle:'Hombros (Prioridad) + Pecho + Tríceps',muscles:'Deltoides · Pectoral · Tríceps',exercises:[
+    {n:null,name:'🔥 Calentamiento',type:'warm',sets:null,reps:null,rest:null,note:'Rotaciones de hombro con banda (2×15) + círculos de brazo + press barra vacía (2×10). 5-8 min.'},
+    {n:1,name:'Press militar mancuernas sentado',type:'compound',sets:'4',reps:'8-10',rest:'2-3 min',note:'Espalda apoyada en banco 90°. Lumbar pegada al respaldo SIEMPRE. No arquear.'},
+    {n:2,name:'Elevaciones laterales mancuernas',type:'isolation',sets:'4',reps:'12-15',rest:'60-90 seg',note:'Ligera inclinación adelante. Excéntrica controlada 3 segundos.'},
+    {n:3,name:'Elevaciones frontales alternas',type:'isolation',sets:'3',reps:'12 c/lado',rest:'60 seg',note:'Pulgar arriba. No subir por encima del hombro. Sin inercia.'},
+    {n:4,name:'Face pulls con polea',type:'isolation',sets:'4',reps:'15-20',rest:'60 seg',note:'★ Deltoides posterior + salud manguito. Polea a altura de cara. Codos bien separados.'},
+    {n:5,name:'Press banca inclinado mancuernas',type:'compound',sets:'3',reps:'10-12',rest:'90 seg',note:'Inclinación 30-45°. Activa porción clavicular del pectoral.'},
+    {n:6,name:'Fondos en paralelas asistidos',type:'compound',sets:'3',reps:'10-12',rest:'90 seg',note:'Si hay dolor de hombro: sustituir por extensiones tríceps.'},
+    {n:7,name:'Extensiones tríceps polea alta',type:'isolation',sets:'3',reps:'12-15',rest:'60 seg',note:'Cuerda o barra recta. Codos fijos pegados a los costados.'},
+  ]},
+  {name:'MARTES',type:'PULL A',color:'#00D4AA',subtitle:'Espalda + Bíceps + Core Fase 1',muscles:'Dorsal · Trapecio · Bíceps · Core',exercises:[
+    {n:null,name:'🔥 Calentamiento',type:'warm',sets:null,reps:null,rest:null,note:'Rotaciones torácicas en suelo (2×10) + cat-cow (2×10) + jalones con banda (2×15).'},
+    {n:1,name:'Jalones al pecho polea',type:'compound',sets:'4',reps:'10-12',rest:'90 seg',note:'Agarre prono ancho. Pecho sale hacia la barra. Retracción escapular completa.'},
+    {n:2,name:'Remo en máquina / cable sentado',type:'compound',sets:'4',reps:'10-12',rest:'90 seg',note:'Mejor que remo libre (protege lumbares). Omóplatos juntos al final.'},
+    {n:3,name:'Jalones en polea agarre neutro',type:'isolation',sets:'3',reps:'12-15',rest:'60 seg',note:'Agarre paralelo. Menos tensión en manguito rotador.'},
+    {n:4,name:'Curl bíceps mancuernas alterno',type:'isolation',sets:'3',reps:'12 c/lado',rest:'60 seg',note:'Supinación de muñeca al subir. No balancear el torso.'},
+    {n:5,name:'Curl martillo en polea baja',type:'isolation',sets:'3',reps:'12-15',rest:'60 seg',note:'Trabaja braquial y braquiorradial.'},
+    {n:6,name:'Plancha frontal',type:'core',sets:'3',reps:'30-45 seg',rest:'60 seg',note:'FASE 1: Antiextensión. Pelvis en retroversión. Lumbar no se hunde.'},
+    {n:7,name:'Dead Bug',type:'core',sets:'3',reps:'8 c/lado',rest:'60 seg',note:'Lumbar PEGADA al suelo siempre. Muy lento y controlado.'},
+  ]},
+  {name:'MIÉRCOLES',type:'PUSH B',color:'#FF6B35',subtitle:'Hombros MAX + Tríceps (Prioridad) + Pecho',muscles:'Deltoides (3 haces) · Tríceps · Pectoral',exercises:[
+    {n:null,name:'🔥 Calentamiento',type:'warm',sets:null,reps:null,rest:null,note:'Pendulum swings (2×15) + rotaciones externas con banda (2×15) + activación manguito.'},
+    {n:1,name:'Press Arnold mancuernas sentado',type:'compound',sets:'4',reps:'10-12',rest:'2 min',note:'El más completo para hombro. Trabaja los 3 haces. Espalda SIEMPRE apoyada.'},
+    {n:2,name:'Elevaciones laterales en polea baja',type:'isolation',sets:'4',reps:'15-20',rest:'60 seg',note:'Mayor tensión constante que mancuernas. Superioridad mecánica demostrada.'},
+    {n:3,name:'Pájaro / Peck deck inverso',type:'isolation',sets:'4',reps:'15',rest:'60 seg',note:'Deltoides posterior. Alt: mancuernas en banco inclinado prono.'},
+    {n:4,name:'Press francés con barra EZ',type:'compound',sets:'4',reps:'10-12',rest:'90 seg',note:'★ Ejercicio rey para cabeza larga del tríceps. Codos al techo.'},
+    {n:5,name:'Fondos en banco entre sillas',type:'isolation',sets:'3',reps:'12-15',rest:'60 seg',note:'Pies en el suelo. Foco total en tríceps. Codos no se abren.'},
+    {n:6,name:'Press banca plano mancuernas',type:'compound',sets:'3',reps:'10-12',rest:'90 seg',note:'Mantenimiento de pecho. Rango completo.'},
+    {n:7,name:'Aperturas en polea cruzada',type:'isolation',sets:'3',reps:'15',rest:'60 seg',note:'Pecho bajo. Giro de muñecas al finalizar.'},
+  ]},
+  {name:'JUEVES',type:'PULL B',color:'#00D4AA',subtitle:'Espalda (Prioridad) + Bíceps + Core Fase 2',muscles:'Trapecio · Romboides · Dorsal · Core lateral',exercises:[
+    {n:null,name:'🔥 Calentamiento',type:'warm',sets:null,reps:null,rest:null,note:'Movilidad torácica sobre foam roller (2 min) + activación escapular con banda.'},
+    {n:1,name:'Remo en polea baja agarre ancho',type:'compound',sets:'4',reps:'10-12',rest:'90 seg',note:'Trapecio medio y romboides. Retracción escapular completa.'},
+    {n:2,name:'Remo unilateral mancuerna en banco',type:'compound',sets:'4',reps:'10-12 c/lado',rest:'60 seg',note:'Apoyo rodilla + mano en banco. Sin rotación de cadera.'},
+    {n:3,name:'Pull-over mancuerna tumbado',type:'isolation',sets:'3',reps:'15',rest:'60 seg',note:'Dorsal en posición alargada. Sin carga axial lumbar.'},
+    {n:4,name:'Curl concentrado mancuerna',type:'isolation',sets:'3',reps:'12 c/lado',rest:'60 seg',note:'Codo en cara interna de rodilla. Máxima contracción.'},
+    {n:5,name:'Curl en banco Scott / polea',type:'isolation',sets:'3',reps:'12-15',rest:'60 seg',note:'Aísla perfectamente el bíceps. Excéntrica 3 seg.'},
+    {n:6,name:'Plancha lateral',type:'core',sets:'3',reps:'25-35 seg c/lado',rest:'60 seg',note:'FASE 2: Antiflexión lateral. Cuadrado lumbar. Clave para escoliosis.'},
+    {n:7,name:'Bird-Dog',type:'core',sets:'3',reps:'10 c/lado',rest:'60 seg',note:'Extensión lumbar controlada. Columna neutral.'},
+  ]},
+  {name:'VIERNES',type:'FULL UPPER (opc.)',color:'#7C5CFC',subtitle:'Hombros + Pecho + Espalda + Brazos',muscles:'Todos los grupos del tren superior',exercises:[
+    {n:null,name:'🔥 Calentamiento',type:'warm',sets:null,reps:null,rest:null,note:'5 min bici + movilidad hombros + activación escapular.'},
+    {n:1,name:'Superserie: Elevaciones laterales + Face pulls',type:'compound',sets:'4',reps:'12+15',rest:'90 seg',note:'Sin descanso entre los dos ejercicios. Activa todo el deltoides.'},
+    {n:2,name:'Press banca inclinado mancuernas',type:'compound',sets:'3',reps:'10-12',rest:'90 seg',note:'Mantenimiento de pecho.'},
+    {n:3,name:'Jalones en polea agarre neutro',type:'compound',sets:'3',reps:'12',rest:'90 seg',note:'Dorsal inferior. Agarre paralelo estrecho.'},
+    {n:4,name:'Superserie: Curl bíceps + Extensiones tríceps',type:'isolation',sets:'3',reps:'12+12',rest:'60 seg',note:'Superserie antagonista. Máxima congestión en brazos.'},
+    {n:5,name:'Press Arnold mancuernas sentado',type:'isolation',sets:'3',reps:'15-20',rest:'60 seg',note:'Carga menor que miércoles. Calidad sobre peso.'},
+    {n:6,name:'Plancha frontal + Dead Bug',type:'core',sets:'2',reps:'30seg+8/lado',rest:'60 seg',note:'Mantenimiento del core semanal.'},
+  ]},
+];
+
+const LUM = {
+  p1:[
+    {name:'Plancha frontal',detail:'3 × 30-45 seg | Pelvis en retroversión. Lumbar sin hundirse.'},
+    {name:'Dead Bug',detail:'3 × 8 reps/lado | Lumbar PEGADA al suelo. Muy lento.'},
+    {name:'Puente de glúteos',detail:'3 × 15 reps | Activa glúteo + isquios → descarga la lumbar.'},
+    {name:'Plancha lateral',detail:'3 × 25 seg + respiración diafragmática 5 min/día.'},
+  ],
+  p2:[
+    {name:'Bird-Dog',detail:'3 × 10/lado | Extensión posterior SIN hiperlordosis.'},
+    {name:'Plancha lateral',detail:'3 × 25-35 seg/lado | Cuadrado lumbar. Clave escoliosis.'},
+    {name:'Plancha frontal',detail:'3 × 10 (hold 3 seg) | Progresión de la Fase 1.'},
+    {name:'Remo en máquina / cable sentado',detail:'3 × 12-15 | Extensores lumbares de forma segura.'},
+  ]
+};
+
+// ═══════════════════════════════════════════════════════════
+// STATE
+// ═══════════════════════════════════════════════════════════
+let WD=JSON.parse(localStorage.getItem('wt26')||'[]');
+let WC,PC,MC;
+const SW=83,SD='2026-03-29';
+
+function ST(id,el){
+  document.querySelectorAll('.sec').forEach(s=>s.classList.remove('on'));
+  document.querySelectorAll('.nt').forEach(t=>t.classList.remove('on'));
+  document.getElementById('tab-'+id).classList.add('on');
+  el.classList.add('on');
+  if(id==='peso')setTimeout(RT,50);
+  if(id==='nut')setTimeout(RM,50);
+}
+
+// PLAN
+function RP(){
+  const g=document.getElementById('dg');
+  DAYS.forEach(day=>{
+    const c=document.createElement('div');
+    c.className='dc';
+    c.innerHTML=`<div class="dh" style="background:linear-gradient(135deg,${day.color}33,${day.color}11);">
+      <div><div class="dn2" style="color:${day.color}">${day.name}</div><div class="dt">${day.type}</div></div>
+      <div class="db" style="color:${day.color};border:1px solid ${day.color}44;">${day.exercises.filter(e=>e.n!==null).length} ej.</div>
+    </div>
+    <div class="dp"><b style="color:var(--tx);font-size:12px;">${day.subtitle}</b><br><span style="font-size:10px;">${day.muscles}</span><br><span style="color:${day.color};font-size:11px;font-weight:600;margin-top:6px;display:block;">Ver ilustraciones anatómicas →</span></div>`;
+    c.addEventListener('click',()=>OM(day));
+    g.appendChild(c);
+  });
+}
+
+const BC2={compound:'bc',isolation:'bi',core:'bco',warm:'bw'};
+const TL2={compound:'Compuesto',isolation:'Aislado',core:'Core',warm:'Warm-up'};
+
+function OM(day){
+  document.getElementById('mtit').textContent=`${day.name} — ${day.type}`;
+  document.getElementById('mtit').style.color=day.color;
+  document.getElementById('msub').textContent=day.subtitle;
+  const con=document.getElementById('mex');
+  con.innerHTML='';
+  day.exercises.forEach(ex=>{
+    const row=document.createElement('div');
+    row.className='er';
+    const aw = buildMedia(ex.name, GK(ex.name));
+    row.innerHTML=`<div>
+      <div style="display:flex;gap:6px;align-items:center;flex-wrap:wrap;margin-bottom:4px;">
+        <span class="enum" style="color:${day.color}">${ex.n!==null?ex.n:'🔥'}</span>
+        <span class="enm">${ex.name}</span>
+        <span class="bge ${BC2[ex.type]||''}">${TL2[ex.type]||''}</span>
+      </div>
+      <div class="chips">
+        ${ex.sets?`<span class="ch cs">📋 ${ex.sets} series</span>`:''}
+        ${ex.reps?`<span class="ch cr">🔁 ${ex.reps} reps</span>`:''}
+        ${ex.rest?`<span class="ch cx">⏱ ${ex.rest}</span>`:''}
+      </div>
+      <div class="en">${ex.note}</div>
+    </div>`;
+    row.insertBefore(aw,row.firstChild);
+    con.appendChild(row);
+  });
+  document.getElementById('modal').classList.add('on');
+  document.body.style.overflow='hidden';
+}
+function CM(){document.getElementById('modal').classList.remove('on');document.body.style.overflow='';}
+
+// LUMBAR
+function RL(){
+  ['p1','p2'].forEach(ph=>{
+    const con=document.getElementById(ph+'e');
+    LUM[ph].forEach(ex=>{
+      const div=document.createElement('div');
+      div.className='pe';
+      const aw = buildMedia(ex.name, GK(ex.name));
+      aw.className='pa'; aw.style.width='108px'; aw.style.height='88px';
+      div.innerHTML=`<div><b style="color:var(--tx);font-size:13px;">${ex.name}</b><br><span style="font-size:11px;color:var(--mu);line-height:1.5;">${ex.detail}</span></div>`;
+      div.insertBefore(aw,div.firstChild);
+      con.appendChild(div);
+    });
+  });
+}
+function SP(n,el){
+  document.getElementById('p1').style.display=n===1?'block':'none';
+  document.getElementById('p2').style.display=n===2?'block':'none';
+  document.querySelectorAll('.pb').forEach(b=>b.classList.remove('on'));
+  el.classList.add('on');
+}
+
+// TRACKER
+function IW(ds){const gw=parseFloat(document.getElementById('ig2').value)||76;const gd=document.getElementById('igd').value||'2026-06-30';const t=Math.max(0,Math.min(1,(new Date(ds)-new Date(SD))/(new Date(gd)-new Date(SD))));return+(SW-(SW-gw)*t).toFixed(2);}
+function AW(){const w=parseFloat(document.getElementById('iw').value);const d=document.getElementById('id2').value;if(!w||!d||w<40||w>200){alert('Introduce un peso y fecha válidos.');return;}WD=WD.filter(e=>e.date!==d);WD.push({date:d,weight:w});WD.sort((a,b)=>a.date.localeCompare(b.date));localStorage.setItem('wt26',JSON.stringify(WD));document.getElementById('iw').value='';RT();UD();}
+function CW(){if(confirm('¿Borrar todos los registros?')){WD=[];localStorage.setItem('wt26','[]');RT();UD();}}
+function RT(){
+  const b=document.getElementById('sb2');
+  if(!WD.length){b.className='sb snu';b.innerHTML='<span>📊</span><span>Registra tu peso para ver el análisis</span>';}
+  else{const lat=WD[WD.length-1],id=IW(lat.date),df=+(lat.weight-id).toFixed(1);
+    if(df<=0.3){b.className='sb sok';b.innerHTML=`<span>✅</span><span><b>¡En objetivo!</b> ${lat.weight}kg en línea con el ideal ${id}kg.</span>`;}
+    else if(df<=1){b.className='sb swn';b.innerHTML=`<span>⚠️</span><span><b>Leve retraso.</b> ${lat.weight}kg vs ideal ${id}kg.</span>`;}
+    else{b.className='sb sdn';b.innerHTML=`<span>🔴</span><span><b>Desviación.</b> ${lat.weight}kg está ${df}kg sobre ${id}kg.</span>`;}
+  }
+  const tb=document.getElementById('wb');tb.innerHTML='';
+  document.getElementById('nd').style.display=WD.length?'none':'block';
+  WD.slice().reverse().forEach((e,i,a)=>{const prev=a[i+1],chg=prev?+(e.weight-prev.weight).toFixed(2):null;const id2=IW(e.date),df2=+(e.weight-id2).toFixed(2);const tr=document.createElement('tr');tr.innerHTML=`<td>${e.date}</td><td style="font-weight:700">${e.weight}kg</td><td style="color:${chg===null?'var(--mu)':chg<0?'var(--ok)':'var(--dn)'}">${chg===null?'—':chg>0?'+'+chg:chg}kg</td><td style="color:${df2<=0.3?'var(--ok)':df2<=1?'var(--wn)':'var(--dn)'}">${df2>0?'+':''}${df2}kg</td><td>${df2<=0.3?'✅':df2<=1?'⚠️':'🔴'}</td>`;tb.appendChild(tr);});
+  RW();RPR();
+}
+function RW(){const ctx=document.getElementById('wc').getContext('2d');if(WC)WC.destroy();const gd=document.getElementById('igd').value||'2026-06-30';const ip=[];for(let d=new Date(SD);d<=new Date(gd);d.setDate(d.getDate()+7))ip.push({x:d.toISOString().split('T')[0],y:IW(d.toISOString().split('T')[0])});WC=new Chart(ctx,{type:'line',data:{datasets:[{label:'Peso real',data:WD.map(e=>({x:e.date,y:e.weight})),borderColor:'#00D4AA',backgroundColor:'rgba(0,212,170,.1)',borderWidth:2.5,pointRadius:5,pointBackgroundColor:'#00D4AA',tension:.3,fill:false},{label:'Línea ideal',data:ip,borderColor:'#FF6B35',borderWidth:1.5,borderDash:[6,4],pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8892A4',font:{size:10}}}},scales:{x:{type:'time',time:{unit:'week'},ticks:{color:'#8892A4',maxTicksLimit:5},grid:{color:'#252D45'}},y:{ticks:{color:'#8892A4',callback:v=>v+'kg'},grid:{color:'#252D45'}}}}});}
+function RPR(){const ctx=document.getElementById('pc2').getContext('2d');if(PC)PC.destroy();const gw=parseFloat(document.getElementById('ig2').value)||76;const gd=document.getElementById('igd').value||'2026-06-30';if(WD.length<2){PC=new Chart(ctx,{type:'bar',data:{labels:['Añade más datos'],datasets:[{data:[0],backgroundColor:'transparent'}]},options:{plugins:{legend:{display:false}},scales:{x:{ticks:{color:'#8892A4'}},y:{display:false}}}});return;}const pts=WD.map(e=>({x:new Date(e.date).getTime(),y:e.weight}));const n=pts.length,mx=pts.reduce((s,p)=>s+p.x,0)/n,my=pts.reduce((s,p)=>s+p.y,0)/n;const sl=pts.reduce((s,p)=>s+(p.x-mx)*(p.y-my),0)/pts.reduce((s,p)=>s+(p.x-mx)**2,0);const ic=my-sl*mx;const pp=[],lat=new Date(WD[WD.length-1].date);for(let d=new Date(lat);d<=new Date(gd);d.setDate(d.getDate()+7))pp.push({x:d.toISOString().split('T')[0],y:+(ic+sl*d.getTime()).toFixed(2)});PC=new Chart(ctx,{type:'line',data:{datasets:[{label:'Proyección',data:pp,borderColor:'#7C5CFC',borderWidth:2,borderDash:[8,4],pointRadius:0,fill:{target:'origin',above:'rgba(124,92,252,.05)'}},{label:`Obj. ${gw}kg`,data:[{x:WD[0].date,y:gw},{x:gd,y:gw}],borderColor:'#22C55E',borderWidth:1.5,borderDash:[4,4],pointRadius:0,fill:false}]},options:{responsive:true,maintainAspectRatio:false,plugins:{legend:{labels:{color:'#8892A4',font:{size:10}}}},scales:{x:{type:'time',time:{unit:'week'},ticks:{color:'#8892A4',maxTicksLimit:5},grid:{color:'#252D45'}},y:{ticks:{color:'#8892A4',callback:v=>v+'kg'},grid:{color:'#252D45'}}}}});}
+function RM(){const ctx=document.getElementById('mc3').getContext('2d');if(MC)MC.destroy();MC=new Chart(ctx,{type:'doughnut',data:{labels:['Proteína 35%','Hidratos 40%','Grasas 25%'],datasets:[{data:[800,920,575],backgroundColor:['#00D4AA','#7C5CFC','#FF6B35'],borderColor:'#0A0E1A',borderWidth:3}]},options:{responsive:true,maintainAspectRatio:false,cutout:'60%',plugins:{legend:{position:'bottom',labels:{color:'#8892A4',font:{size:10},padding:8}},tooltip:{callbacks:{label:c=>` ${c.label}: ${c.raw} kcal`}}}}});}
+function UD(){if(!WD.length)return;const lat=WD[WD.length-1],gw=parseFloat(document.getElementById('ig2').value)||76;const pct=Math.max(0,Math.min(100,Math.round((SW-lat.weight)/(SW-gw)*100)));document.getElementById('db3').style.width=pct+'%';document.getElementById('dp').textContent=pct+'%';document.getElementById('dt2').textContent=`${lat.weight}kg · faltan ${(lat.weight-gw).toFixed(1)}kg`;}
+
+// Register Chart.js components (required for tree-shaken builds)
+if (typeof Chart !== 'undefined') {
+  Chart.register(...Chart.registerables);
+}
+
+document.addEventListener('DOMContentLoaded',()=>{
+  document.getElementById('id2').value=new Date().toISOString().split('T')[0];
+  RP();RL();UD();
+});
+</script>
+</body>
+</html>
