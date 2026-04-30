@@ -1353,10 +1353,7 @@ async function callClaude(systemPrompt, userMsg, buttonEl) {
   }
 }
 
-async function runAnalysis() {
-  var btn = document.querySelector('#sec-ai .btn-green');
-  var context = buildContext();
-
+function runAnalysis() {
   if (!weights.length && !ffData.length) {
     document.getElementById('ai-result').style.display = 'block';
     document.getElementById('ai-result-text').textContent =
@@ -1364,33 +1361,69 @@ async function runAnalysis() {
     return;
   }
 
-  var systemPrompt =
-    'Eres un entrenador personal y nutricionista deportivo experto. ' +
-    'Hablas en español, con tono directo, motivador y muy práctico. ' +
-    'IMPORTANTE: El usuario tiene lumbares sensibles (lordosis + escoliosis). Nunca recomiendes cargas axiales de pie. ' +
-    'El usuario registra sus métricas cuando puede, sin día fijo, así que analiza la TENDENCIA general, no solo la última semana. ' +
-    'Haz un análisis COMPLETO: tanto composición corporal como nutrición y entrenamiento. ' +
-    'Sé muy específico con números reales del usuario. ' +
-    'Estructura siempre así:\n' +
-    '📈 PROGRESO\n' +
-    '(qué ha cambiado en peso, grasa, músculo — con números exactos y ritmo semanal)\n\n' +
-    '✅ LO QUE ESTÁ FUNCIONANDO\n' +
-    '(aspectos positivos concretos basados en los datos)\n\n' +
-    '⚠️ LO QUE MEJORAR\n' +
-    '(máximo 3 puntos, con explicación breve del porqué)\n\n' +
-    '🎯 ACCIÓN PARA ESTA SEMANA\n' +
-    '(1-2 cambios muy concretos y fáciles de implementar)\n\n' +
-    '💡 NUTRICIÓN\n' +
-    '(recordatorio de macros objetivo y si va bien o necesita ajuste según progreso)';
+  // Build the full prompt with all available data
+  var context = buildContext();
+  var prompt =
+    'Soy Alberto. Te paso mis datos de composición corporal registrados en mi app FitPlan 2026. ' +
+    'Por favor, hazme un análisis completo de mi progreso estructurado así:\n\n' +
+    '📈 PROGRESO — qué ha cambiado en peso, grasa y músculo con números exactos y ritmo semanal\n' +
+    '✅ LO QUE ESTÁ FUNCIONANDO — aspectos positivos concretos basados en los datos\n' +
+    '⚠️ LO QUE MEJORAR — máximo 3 puntos con explicación breve\n' +
+    '🎯 ACCIÓN PARA ESTA SEMANA — 1-2 cambios muy concretos\n' +
+    '💡 NUTRICIÓN — recuérdame mis macros objetivo y dime si voy bien según el progreso\n\n' +
+    'Mis datos:\n\n' +
+    context;
 
-
-  var userMsg = context + '\nHaz un analisis completo de mi progreso: evolucion peso y composicion corporal, nutricion y entrenamiento, recomendaciones para los proximos dias.';
-
-  var result = await callClaude(systemPrompt, userMsg, btn);
+  // Show info card while opening Claude
   document.getElementById('ai-result').style.display = 'block';
-  document.getElementById('ai-result-text').textContent = result;
+  document.getElementById('ai-result-text').textContent =
+    '✅ Prompt generado con todos tus datos.\n\n' +
+    'Se abrirá Claude app con el análisis listo. Si no se abre automáticamente, pulsa el botón "Abrir Claude" que aparece abajo.';
   document.getElementById('ai-result-date').textContent =
-    'Generado el ' + new Date().toLocaleDateString('es-ES', {weekday:'long',day:'numeric',month:'long',year:'numeric'});
+    'Datos a ' + new Date().toLocaleDateString('es-ES', {weekday:'long', day:'numeric', month:'long', year:'numeric'});
+
+  // Render the open button
+  var card = document.getElementById('ai-result-card');
+  var existing = document.getElementById('ai-open-btn');
+  if (existing) existing.remove();
+
+  var encoded = encodeURIComponent(prompt);
+  // Claude deep link — works on iOS and Android Claude app
+  var deepLink = 'claude://new?text=' + encoded;
+  // Fallback: claude.ai web with pre-filled message
+  var webLink  = 'https://claude.ai/new?q=' + encoded;
+
+  var btnWrap = document.createElement('div');
+  btnWrap.id = 'ai-open-btn';
+  btnWrap.style.cssText = 'margin-top:14px;display:flex;flex-direction:column;gap:8px;';
+
+  var btnApp = document.createElement('a');
+  btnApp.href = deepLink;
+  btnApp.textContent = '🤖 Abrir en Claude app';
+  btnApp.style.cssText =
+    'display:block;text-align:center;padding:12px;border-radius:10px;' +
+    'background:var(--green);color:var(--bg);font-weight:700;font-size:14px;text-decoration:none;';
+
+  var btnWeb = document.createElement('a');
+  btnWeb.href = webLink;
+  btnWeb.target = '_blank';
+  btnWeb.textContent = '🌐 Abrir en claude.ai (navegador)';
+  btnWeb.style.cssText =
+    'display:block;text-align:center;padding:10px;border-radius:10px;' +
+    'background:rgba(124,92,252,.15);color:var(--purple);font-weight:600;font-size:13px;' +
+    'border:1px solid rgba(124,92,252,.3);text-decoration:none;';
+
+  var hint = document.createElement('p');
+  hint.textContent = 'El prompt incluye todos tus registros. Solo pulsa Enviar en Claude.';
+  hint.style.cssText = 'font-size:10px;color:var(--muted);text-align:center;margin-top:2px;';
+
+  btnWrap.appendChild(btnApp);
+  btnWrap.appendChild(btnWeb);
+  btnWrap.appendChild(hint);
+  card.appendChild(btnWrap);
+
+  // Try to open the app automatically
+  window.location.href = deepLink;
 }
 
 async function askQuestion() {
@@ -1484,7 +1517,7 @@ document.addEventListener('DOMContentLoaded', function() {
   <div class="card" style="margin-bottom:13px;background:linear-gradient(135deg,#0d1828,#141929);border-color:#1e3050">
     <div class="card-title" style="color:var(--purple)">📈 Análisis semanal automático</div>
     <p style="font-size:12px;color:var(--muted);margin-bottom:12px">El asistente analiza <b style="color:var(--text)">todos tus registros acumulados</b> — peso y Feelfit — y genera un informe completo de progreso, nutrición y entrenamiento. Puedes usarlo cuando quieras, no hace falta un día fijo.</p>
-    <button class="btn btn-green" onclick="runAnalysis()" style="width:100%;padding:12px;font-size:14px">🔍 Analizar mi semana</button>
+    <button class="btn btn-green" onclick="runAnalysis()" style="width:100%;padding:12px;font-size:14px">🔍 Generar análisis y abrir Claude</button>
   </div>
 
   <!-- Analysis result -->
